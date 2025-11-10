@@ -6,7 +6,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -24,178 +23,196 @@ import com.sunbooking.dto.response.ErrorResponse;
 @RestControllerAdvice(basePackages = "com.sunbooking.controller.api")
 public class ApiExceptionHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(ApiExceptionHandler.class);
+        private static final Logger logger = LoggerFactory.getLogger(ApiExceptionHandler.class);
 
-    /**
-     * Handle ResourceNotFoundException
-     */
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(
-            ResourceNotFoundException ex, HttpServletRequest request) {
+        /**
+         * Handle ResourceNotFoundException
+         */
+        @ExceptionHandler(ResourceNotFoundException.class)
+        public ResponseEntity<ErrorResponse> handleResourceNotFoundException(
+                        ResourceNotFoundException ex, HttpServletRequest request) {
 
-        logger.warn("Resource not found: {}", ex.getMessage());
+                logger.warn("Resource not found: {}", ex.getMessage());
 
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.NOT_FOUND.value(),
-                "Not Found",
-                ex.getMessage(),
-                request.getRequestURI());
+                ErrorCode errorCode = ErrorCode.RESOURCE_NOT_FOUND;
+                ErrorResponse errorResponse = new ErrorResponse(
+                                errorCode.getStatusValue(),
+                                errorCode.getCode(),
+                                errorCode.getMessage(),
+                                ex.getMessage(),
+                                request.getRequestURI());
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
-    }
-
-    /**
-     * Handle ValidationException
-     */
-    @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<ErrorResponse> handleValidationException(
-            ValidationException ex, HttpServletRequest request) {
-
-        logger.warn("Validation error: {}", ex.getMessage());
-
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                "Validation Error",
-                ex.getMessage(),
-                request.getRequestURI());
-
-        if (ex.getField() != null) {
-            errorResponse.addValidationError(ex.getField(), ex.getMessage());
+                return new ResponseEntity<>(errorResponse, errorCode.getHttpStatus());
         }
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
+        /**
+         * Handle ValidationException
+         */
+        @ExceptionHandler(ValidationException.class)
+        public ResponseEntity<ErrorResponse> handleValidationException(
+                        ValidationException ex, HttpServletRequest request) {
 
-    /**
-     * Handle UnauthorizedException
-     */
-    @ExceptionHandler(UnauthorizedException.class)
-    public ResponseEntity<ErrorResponse> handleUnauthorizedException(
-            UnauthorizedException ex, HttpServletRequest request) {
+                logger.warn("Validation error: {}", ex.getMessage());
 
-        logger.warn("Unauthorized access: {}", ex.getMessage());
+                ErrorCode errorCode = ErrorCode.VALIDATION_ERROR;
+                ErrorResponse errorResponse = new ErrorResponse(
+                                errorCode.getStatusValue(),
+                                errorCode.getCode(),
+                                errorCode.getMessage(),
+                                ex.getMessage(),
+                                request.getRequestURI());
 
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.UNAUTHORIZED.value(),
-                "Unauthorized",
-                ex.getMessage(),
-                request.getRequestURI());
+                if (ex.getField() != null) {
+                        errorResponse.addValidationError(ex.getField(), ex.getMessage());
+                }
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
-    }
+                return new ResponseEntity<>(errorResponse, errorCode.getHttpStatus());
+        }
 
-    /**
-     * Handle BusinessLogicException
-     */
-    @ExceptionHandler(BusinessLogicException.class)
-    public ResponseEntity<ErrorResponse> handleBusinessLogicException(
-            BusinessLogicException ex, HttpServletRequest request) {
+        /**
+         * Handle UnauthorizedException
+         */
+        @ExceptionHandler(UnauthorizedException.class)
+        public ResponseEntity<ErrorResponse> handleUnauthorizedException(
+                        UnauthorizedException ex, HttpServletRequest request) {
 
-        logger.warn("Business logic error: {}", ex.getMessage());
+                logger.warn("Unauthorized access: {}", ex.getMessage());
 
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                "Business Logic Error",
-                ex.getMessage(),
-                request.getRequestURI());
+                ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
+                ErrorResponse errorResponse = new ErrorResponse(
+                                errorCode.getStatusValue(),
+                                errorCode.getCode(),
+                                errorCode.getMessage(),
+                                ex.getMessage(),
+                                request.getRequestURI());
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
+                return new ResponseEntity<>(errorResponse, errorCode.getHttpStatus());
+        }
 
-    /**
-     * Handle DuplicateResourceException
-     */
-    @ExceptionHandler(DuplicateResourceException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicateResourceException(
-            DuplicateResourceException ex, HttpServletRequest request) {
+        /**
+         * Handle BusinessLogicException
+         */
+        @ExceptionHandler(BusinessLogicException.class)
+        public ResponseEntity<ErrorResponse> handleBusinessLogicException(
+                        BusinessLogicException ex, HttpServletRequest request) {
 
-        logger.warn("Duplicate resource: {}", ex.getMessage());
+                logger.warn("Business logic error: {}", ex.getMessage());
 
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.CONFLICT.value(),
-                "Conflict",
-                ex.getMessage(),
-                request.getRequestURI());
+                ErrorCode errorCode = ErrorCode.BUSINESS_LOGIC_ERROR;
+                ErrorResponse errorResponse = new ErrorResponse(
+                                errorCode.getStatusValue(),
+                                errorCode.getCode(),
+                                errorCode.getMessage(),
+                                ex.getMessage(),
+                                request.getRequestURI());
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
-    }
+                return new ResponseEntity<>(errorResponse, errorCode.getHttpStatus());
+        }
 
-    /**
-     * Handle MethodArgumentNotValidException (Bean Validation)
-     */
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(
-            MethodArgumentNotValidException ex, HttpServletRequest request) {
+        /**
+         * Handle DuplicateResourceException
+         */
+        @ExceptionHandler(DuplicateResourceException.class)
+        public ResponseEntity<ErrorResponse> handleDuplicateResourceException(
+                        DuplicateResourceException ex, HttpServletRequest request) {
 
-        logger.warn("Validation failed: {}", ex.getMessage());
+                logger.warn("Duplicate resource: {}", ex.getMessage());
 
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                "Validation Failed",
-                "One or more fields have validation errors",
-                request.getRequestURI());
+                ErrorCode errorCode = ErrorCode.DUPLICATE_RESOURCE;
+                ErrorResponse errorResponse = new ErrorResponse(
+                                errorCode.getStatusValue(),
+                                errorCode.getCode(),
+                                errorCode.getMessage(),
+                                ex.getMessage(),
+                                request.getRequestURI());
 
-        // Add all validation errors
-        ex.getBindingResult().getAllErrors().forEach(error -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errorResponse.addValidationError(fieldName, errorMessage);
-        });
+                return new ResponseEntity<>(errorResponse, errorCode.getHttpStatus());
+        }
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
+        /**
+         * Handle MethodArgumentNotValidException (Bean Validation)
+         */
+        @ExceptionHandler(MethodArgumentNotValidException.class)
+        public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(
+                        MethodArgumentNotValidException ex, HttpServletRequest request) {
 
-    /**
-     * Handle AccessDeniedException
-     */
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleAccessDeniedException(
-            AccessDeniedException ex, HttpServletRequest request) {
+                logger.warn("Validation failed: {}", ex.getMessage());
 
-        logger.warn("Access denied: {}", ex.getMessage());
+                ErrorCode errorCode = ErrorCode.INVALID_INPUT;
+                ErrorResponse errorResponse = new ErrorResponse(
+                                errorCode.getStatusValue(),
+                                errorCode.getCode(),
+                                errorCode.getMessage(),
+                                "One or more fields have validation errors",
+                                request.getRequestURI());
 
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.FORBIDDEN.value(),
-                "Forbidden",
-                "You don't have permission to access this resource",
-                request.getRequestURI());
+                // Add all validation errors
+                ex.getBindingResult().getAllErrors().forEach(error -> {
+                        String fieldName = ((FieldError) error).getField();
+                        String errorMessage = error.getDefaultMessage();
+                        errorResponse.addValidationError(fieldName, errorMessage);
+                });
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
-    }
+                return new ResponseEntity<>(errorResponse, errorCode.getHttpStatus());
+        }
 
-    /**
-     * Handle NoHandlerFoundException (404)
-     */
-    @ExceptionHandler(NoHandlerFoundException.class)
-    public ResponseEntity<ErrorResponse> handleNoHandlerFoundException(
-            NoHandlerFoundException ex, HttpServletRequest request) {
+        /**
+         * Handle AccessDeniedException
+         */
+        @ExceptionHandler(AccessDeniedException.class)
+        public ResponseEntity<ErrorResponse> handleAccessDeniedException(
+                        AccessDeniedException ex, HttpServletRequest request) {
 
-        logger.warn("No handler found for: {} {}", ex.getHttpMethod(), ex.getRequestURL());
+                logger.warn("Access denied: {}", ex.getMessage());
 
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.NOT_FOUND.value(),
-                "Not Found",
-                "The requested endpoint does not exist",
-                request.getRequestURI());
+                ErrorCode errorCode = ErrorCode.ACCESS_DENIED;
+                ErrorResponse errorResponse = new ErrorResponse(
+                                errorCode.getStatusValue(),
+                                errorCode.getCode(),
+                                errorCode.getMessage(),
+                                "You don't have permission to access this resource",
+                                request.getRequestURI());
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
-    }
+                return new ResponseEntity<>(errorResponse, errorCode.getHttpStatus());
+        }
 
-    /**
-     * Handle all other exceptions
-     */
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGlobalException(
-            Exception ex, HttpServletRequest request) {
+        /**
+         * Handle NoHandlerFoundException (404)
+         */
+        @ExceptionHandler(NoHandlerFoundException.class)
+        public ResponseEntity<ErrorResponse> handleNoHandlerFoundException(
+                        NoHandlerFoundException ex, HttpServletRequest request) {
 
-        logger.error("Unexpected error occurred: ", ex);
+                logger.warn("No handler found for: {} {}", ex.getHttpMethod(), ex.getRequestURL());
 
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "Internal Server Error",
-                "An unexpected error occurred. Please try again later.",
-                request.getRequestURI());
+                ErrorCode errorCode = ErrorCode.ENDPOINT_NOT_FOUND;
+                ErrorResponse errorResponse = new ErrorResponse(
+                                errorCode.getStatusValue(),
+                                errorCode.getCode(),
+                                errorCode.getMessage(),
+                                "The requested endpoint does not exist",
+                                request.getRequestURI());
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+                return new ResponseEntity<>(errorResponse, errorCode.getHttpStatus());
+        }
+
+        /**
+         * Handle all other exceptions
+         */
+        @ExceptionHandler(Exception.class)
+        public ResponseEntity<ErrorResponse> handleGlobalException(
+                        Exception ex, HttpServletRequest request) {
+
+                logger.error("Unexpected error occurred: ", ex);
+
+                ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
+                ErrorResponse errorResponse = new ErrorResponse(
+                                errorCode.getStatusValue(),
+                                errorCode.getCode(),
+                                errorCode.getMessage(),
+                                "An unexpected error occurred. Please try again later.",
+                                request.getRequestURI());
+
+                return new ResponseEntity<>(errorResponse, errorCode.getHttpStatus());
+        }
 }

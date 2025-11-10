@@ -5,14 +5,22 @@ package com.sunbooking.exception;
  */
 public class ValidationException extends RuntimeException {
 
-    private String field;
-    private Object rejectedValue;
+    private final String field;
+    private final Object rejectedValue;
 
     public ValidationException(String message) {
         super(message);
+        this.field = null;
+        this.rejectedValue = null;
     }
 
     public ValidationException(String field, Object rejectedValue, String message) {
+        super(message);
+        this.field = field;
+        this.rejectedValue = rejectedValue;
+    }
+
+    public ValidationException(String message, String field, Object rejectedValue) {
         super(message);
         this.field = field;
         this.rejectedValue = rejectedValue;

@@ -5,10 +5,11 @@ package com.sunbooking.exception;
  */
 public class BusinessLogicException extends RuntimeException {
 
-    private String errorCode;
+    private final String errorCode;
 
     public BusinessLogicException(String message) {
         super(message);
+        this.errorCode = null;
     }
 
     public BusinessLogicException(String errorCode, String message) {
@@ -18,6 +19,12 @@ public class BusinessLogicException extends RuntimeException {
 
     public BusinessLogicException(String message, Throwable cause) {
         super(message, cause);
+        this.errorCode = null;
+    }
+
+    public BusinessLogicException(String errorCode, String message, Throwable cause) {
+        super(message, cause);
+        this.errorCode = errorCode;
     }
 
     public String getErrorCode() {

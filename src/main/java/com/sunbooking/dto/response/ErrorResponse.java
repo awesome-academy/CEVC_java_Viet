@@ -12,87 +12,65 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ErrorResponse {
 
-    private LocalDateTime timestamp;
-    private int status;
-    private String error;
-    private String message;
-    private String path;
+    private final LocalDateTime timestamp;
+    private final int status;
+    private final String code;
+    private final String message;
+    private final String details;
+    private final String path;
     private List<ValidationError> validationErrors;
 
-    public ErrorResponse() {
+    public ErrorResponse(int status, String code, String message, String details, String path) {
         this.timestamp = LocalDateTime.now();
-    }
-
-    public ErrorResponse(int status, String error, String message, String path) {
-        this();
         this.status = status;
-        this.error = error;
+        this.code = code;
         this.message = message;
+        this.details = details;
         this.path = path;
     }
 
-    public void addValidationError(String field, String message) {
+    public void addValidationError(String field, String details) {
         if (validationErrors == null) {
             validationErrors = new ArrayList<>();
         }
-        validationErrors.add(new ValidationError(field, message));
+        validationErrors.add(new ValidationError(field, details));
     }
 
-    // Getters and Setters
+    // Getters only
     public LocalDateTime getTimestamp() {
         return timestamp;
-    }
-
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
     }
 
     public int getStatus() {
         return status;
     }
 
-    public void setStatus(int status) {
-        this.status = status;
-    }
-
-    public String getError() {
-        return error;
-    }
-
-    public void setError(String error) {
-        this.error = error;
+    public String getCode() {
+        return code;
     }
 
     public String getMessage() {
         return message;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public String getDetails() {
+        return details;
     }
 
     public String getPath() {
         return path;
     }
 
-    public void setPath(String path) {
-        this.path = path;
-    }
-
     public List<ValidationError> getValidationErrors() {
         return validationErrors;
-    }
-
-    public void setValidationErrors(List<ValidationError> validationErrors) {
-        this.validationErrors = validationErrors;
     }
 
     /**
      * Inner class for validation error details
      */
     public static class ValidationError {
-        private String field;
-        private String message;
+        private final String field;
+        private final String message;
 
         public ValidationError(String field, String message) {
             this.field = field;
@@ -103,16 +81,8 @@ public class ErrorResponse {
             return field;
         }
 
-        public void setField(String field) {
-            this.field = field;
-        }
-
         public String getMessage() {
             return message;
-        }
-
-        public void setMessage(String message) {
-            this.message = message;
         }
     }
 }

@@ -119,8 +119,9 @@ throw new DuplicateResourceException("Category name must be unique");
 {
   "timestamp": "2025-11-07T16:00:00",
   "status": 404,
-  "error": "Not Found",
-  "message": "User not found with id : '123'",
+  "code": "RESOURCE_NOT_FOUND",
+  "message": "Not Found",
+  "details": "User not found with id : '123'",
   "path": "/api/users/123"
 }
 ```
@@ -131,8 +132,9 @@ throw new DuplicateResourceException("Category name must be unique");
 {
   "timestamp": "2025-11-07T16:00:00",
   "status": 400,
-  "error": "Validation Failed",
-  "message": "One or more fields have validation errors",
+  "code": "VALIDATION_ERROR",
+  "message": "Validation Failed",
+  "details": "One or more fields have validation errors",
   "path": "/api/users/register",
   "validationErrors": [
     {
@@ -535,8 +537,9 @@ void testApiErrorResponse() throws Exception {
     mockMvc.perform(get("/api/users/999"))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.status").value(404))
-        .andExpect(jsonPath("$.error").value("Not Found"))
-        .andExpect(jsonPath("$.message").value("User not found with id : '999'"))
+        .andExpect(jsonPath("$.code").value("RESOURCE_NOT_FOUND"))
+        .andExpect(jsonPath("$.message").value("Not Found"))
+        .andExpect(jsonPath("$.details").value("User not found with id : '999'"))
         .andExpect(jsonPath("$.path").value("/api/users/999"));
 }
 ```

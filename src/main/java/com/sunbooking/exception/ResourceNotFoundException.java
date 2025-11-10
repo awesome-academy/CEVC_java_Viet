@@ -5,9 +5,9 @@ package com.sunbooking.exception;
  */
 public class ResourceNotFoundException extends RuntimeException {
 
-    private String resourceName;
-    private String fieldName;
-    private Object fieldValue;
+    private final String resourceName;
+    private final String fieldName;
+    private final Object fieldValue;
 
     public ResourceNotFoundException(String resourceName, String fieldName, Object fieldValue) {
         super(String.format("%s not found with %s : '%s'", resourceName, fieldName, fieldValue));
@@ -18,6 +18,16 @@ public class ResourceNotFoundException extends RuntimeException {
 
     public ResourceNotFoundException(String message) {
         super(message);
+        this.resourceName = null;
+        this.fieldName = null;
+        this.fieldValue = null;
+    }
+
+    public ResourceNotFoundException(String message, String resourceName, String fieldName, Object fieldValue) {
+        super(message);
+        this.resourceName = resourceName;
+        this.fieldName = fieldName;
+        this.fieldValue = fieldValue;
     }
 
     public String getResourceName() {

@@ -5,9 +5,9 @@ package com.sunbooking.exception;
  */
 public class DuplicateResourceException extends RuntimeException {
 
-    private String resourceName;
-    private String fieldName;
-    private Object fieldValue;
+    private final String resourceName;
+    private final String fieldName;
+    private final Object fieldValue;
 
     public DuplicateResourceException(String resourceName, String fieldName, Object fieldValue) {
         super(String.format("%s already exists with %s : '%s'", resourceName, fieldName, fieldValue));
@@ -18,6 +18,16 @@ public class DuplicateResourceException extends RuntimeException {
 
     public DuplicateResourceException(String message) {
         super(message);
+        this.resourceName = null;
+        this.fieldName = null;
+        this.fieldValue = null;
+    }
+
+    public DuplicateResourceException(String message, String resourceName, String fieldName, Object fieldValue) {
+        super(message);
+        this.resourceName = resourceName;
+        this.fieldName = fieldName;
+        this.fieldValue = fieldValue;
     }
 
     public String getResourceName() {
