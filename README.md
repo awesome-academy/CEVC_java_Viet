@@ -240,28 +240,173 @@ API documentation will be available at:
 
 ## Configuration
 
-### Environment-Specific Configuration
+### Environment Profiles
 
-The application supports multiple profiles:
+The application supports three environment profiles:
 
-- **Development**: `application-dev.properties`
-- **Production**: `application-prod.properties`
-- **Test**: `application-test.properties`
+- **dev** (Development - default)
+- **prod** (Production)
+- **test** (Testing)
 
-Run with a specific profile:
+### Setting Up Environment Variables
+
+1. **Copy the example environment file**:
 
 ```bash
+cp .env.example .env
+```
+
+2. **Edit `.env` with your configuration**:
+
+```bash
+# Example .env file
+SPRING_PROFILE=dev
+DB_URL=jdbc:mysql://localhost:3306/sun_booking_tour?useSSL=false&serverTimezone=UTC
+DB_USERNAME=root
+DB_PASSWORD=root
+JWT_SECRET=your-secure-jwt-secret-key-here
+```
+
+3. **Run the application**:
+
+The `.env` file is automatically loaded by the `spring-dotenv` library when the application starts.
+
+```bash
+mvn spring-boot:run
+```
+
+### Running with Different Profiles
+
+**Development Profile (Default)**:
+
+```bash
+# Using Maven
+mvn spring-boot:run
+
+# Or specify explicitly
 mvn spring-boot:run -Dspring-boot.run.profiles=dev
+
+# Using JAR
+java -jar target/sun-booking-tour-1.0.0.jar --spring.profiles.active=dev
 ```
 
-### JWT Configuration
+**Production Profile**:
 
-Update JWT secret in `application.properties`:
+```bash
+# Using Maven
+mvn spring-boot:run -Dspring-boot.run.profiles=prod
 
-```properties
-jwt.secret=your-secret-key-minimum-256-bits
-jwt.expiration=86400000  # 24 hours in milliseconds
+# Using JAR (recommended for production)
+java -jar target/sun-booking-tour-1.0.0.jar --spring.profiles.active=prod
 ```
+
+**Test Profile**:
+
+```bash
+# Tests automatically use test profile
+mvn test
+```
+
+### Profile-Specific Configurations
+
+#### Development Profile (`application-dev.properties`)
+
+- **Database**: MySQL with verbose SQL logging
+- **Logging**: DEBUG level for application code
+- **Thymeleaf**: Cache disabled for hot reload
+- **Security**: Less strict (for easier development)
+- **Error Details**: Full stack traces visible
+- **CORS**: Permissive (allows localhost origins)
+
+#### Production Profile (`application-prod.properties`)
+
+- **Database**: MySQL with optimized connection pool
+- **Logging**: INFO/WARN level only, errors logged to separate file
+- **Thymeleaf**: Cache enabled for performance
+- **Security**: Strict settings, all secrets from environment variables
+- **Error Details**: Minimal (security)
+- **CORS**: Restricted to configured origins
+- **Session**: Secure cookies, HTTPS-only
+
+#### Test Profile (`application-test.properties`)
+
+- **Database**: H2 in-memory database
+- **Logging**: Minimal (WARN level)
+- **Flyway**: Disabled (uses JPA schema generation)
+
+### Environment Variables Reference
+
+| Variable               | Description                    | Default                 | Required   |
+| ---------------------- | ------------------------------ | ----------------------- | ---------- |
+| `SPRING_PROFILE`       | Active Spring profile          | `dev`                   | No         |
+| `SERVER_PORT`          | Application port               | `8080`                  | No         |
+| `DB_URL`               | Database connection URL        | localhost MySQL         | Yes (prod) |
+| `DB_USERNAME`          | Database username              | `root`                  | Yes (prod) |
+| `DB_PASSWORD`          | Database password              | `root`                  | Yes (prod) |
+| `DB_POOL_SIZE`         | Max connection pool size       | `10` (dev), `20` (prod) | No         |
+| `JWT_SECRET`           | JWT signing secret (256+ bits) | Default dev key         | Yes (prod) |
+| `JWT_EXPIRATION`       | Token expiration (ms)          | `86400000` (24h)        | No         |
+| `ADMIN_USERNAME`       | Initial admin username         | `admin`                 | Yes (prod) |
+| `ADMIN_PASSWORD`       | Initial admin password         | `admin123`              | Yes (prod) |
+| `CORS_ALLOWED_ORIGINS` | Allowed CORS origins           | localhost               | Yes (prod) |
+| `LOG_FILE_PATH`        | Log file location              | `logs/`                 | No         |
+
+### Logging Configuration
+
+Logs are configured per environment in `logback-spring.xml`:
+
+**Development**:
+
+- Console: Colorized, detailed output
+- Files:
+  - `logs/sun-booking-tour-dev.log` (all logs)
+  - `logs/sun-booking-tour-dev-error.log` (errors only)
+- Rotation: 10MB per file, 7 days retention, 100MB total
+
+**Production**:
+
+- Console: Standard format
+- Files:
+  - `/var/log/sun-booking-tour/application.log` (all logs)
+  - `/var/log/sun-booking-tour/application-error.log` (errors only)
+- Rotation: 50MB per file, 30 days retention, 1GB total
+
+**Viewing Logs**:
+
+```bash
+# Tail development logs
+tail -f logs/sun-booking-tour-dev.log
+
+# Tail error logs only
+tail -f logs/sun-booking-tour-dev-error.log
+
+# Production logs
+tail -f /var/log/sun-booking-tour/application.log
+```
+
+### Security Best Practices
+
+1. **Never commit sensitive data**:
+
+   - The `.env` file is in `.gitignore`
+   - Use environment variables for all secrets
+   - Use different secrets for each environment
+
+2. **Generate secure JWT secret**:
+
+```bash
+# Generate a secure random key
+openssl rand -base64 64
+```
+
+3. **Production checklist**:
+   - [ ] Change all default passwords
+   - [ ] Use strong JWT secret (256+ bits)
+   - [ ] Configure HTTPS/SSL
+   - [ ] Set secure database credentials
+   - [ ] Restrict CORS to specific domains
+   - [ ] Enable production logging
+   - [ ] Configure firewall rules
 
 ## Troubleshooting
 
@@ -304,6 +449,27 @@ jwt.expiration=86400000  # 24 hours in milliseconds
 
 This is an educational project for learning purposes.
 
+## Error Handling & Logging
+
+This project includes a comprehensive error handling and logging infrastructure:
+
+### Exception Handling
+
+- **Custom Exceptions**: ResourceNotFoundException, ValidationException, UnauthorizedException, BusinessLogicException, DuplicateResourceException
+- **Global Exception Handlers**: Separate handlers for API (REST) and Admin (MVC) controllers
+- **Standard Error Responses**: Consistent JSON error format for API endpoints
+- **Thymeleaf Error Pages**: User-friendly error views for admin pages
+
+### Logging Features
+
+- **Request Correlation**: Unique request ID for tracking requests across logs
+- **Performance Monitoring**: Automatic slow request detection (>1s)
+- **Structured Logging**: Consistent format with timestamps, thread, request ID, level, and logger
+- **Profile-Aware Configuration**: Different log levels for dev/prod/test environments
+- **Log Rotation**: Automatic file rotation with configurable retention policies
+
+For detailed documentation, see `ERROR_HANDLING_LOGGING.md`.
+
 ## Support
 
 For detailed specifications, see the `spec/` folder:
@@ -312,16 +478,23 @@ For detailed specifications, see the `spec/` folder:
 - `spec/technical-architecture.md` - Technical architecture
 - `spec/data-models.md` - Database models
 - `spec/IMPLEMENTATION_TASKS.md` - Implementation task list
+- `ERROR_HANDLING_LOGGING.md` - Error handling and logging guide
 
 ## Version History
 
-- **v1.0.0** (2025-11-06): Initial project setup
-  - Spring Boot project structure
-  - Maven configuration
-  - Basic application configuration
-  - Project documentation
+- **v1.0.0** (2025-11-07): Initial project setup and environment configuration
+  - Spring Boot project structure with all dependencies
+  - Maven configuration with spring-dotenv support
+  - Database setup with Flyway migrations
+  - Environment-based configuration (dev/prod/test profiles)
+  - Comprehensive error handling infrastructure with custom exceptions
+  - Global exception handlers for API and MVC controllers
+  - Request/response logging with correlation IDs
+  - Profile-aware logging configuration with rotation policies
+  - Security setup with externalized secrets
+  - Complete project documentation
 
 ---
 
 **Created**: November 6, 2025  
-**Last Updated**: November 6, 2025
+**Last Updated**: November 7, 2025

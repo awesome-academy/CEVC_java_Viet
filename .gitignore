@@ -76,9 +76,8 @@ out/
 .DS_Store
 
 # Application specific
-application-local.properties
-application-dev.properties
-application-prod.properties
+src/main/resources/application-local.properties
+.env
 logs/
 uploads/
 spec/
