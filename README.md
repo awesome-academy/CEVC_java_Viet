@@ -154,13 +154,40 @@ spring.datasource.password=your_password
 mvn clean install
 ```
 
-### 5. Run the Application
+### 5. Database Schema
+
+The application uses Flyway for database migrations. On first startup, 9 migrations will be automatically executed:
+
+1. **V1**: Create users table (with soft-delete)
+2. **V2**: Create categories table (TOUR, NEWS, FOOD, PLACE)
+3. **V3**: Create tours table (with full-text search)
+4. **V4**: Create bookings table (with payment tracking)
+5. **V5**: Create reviews table
+6. **V6**: Create comments table (with nested replies)
+7. **V7**: Create likes table
+8. **V8**: Create additional performance indexes
+9. **V9**: Seed initial data (admin account + 19 categories)
+
+**Initial Admin Account**:
+
+- Email: `admin@sunbooking.com`
+- Password: `Admin@123`
+
+⚠️ **Change this password immediately after first login!**
+
+### 6. Run the Application
 
 ```bash
 mvn spring-boot:run
 ```
 
 The application will start on `http://localhost:8080`
+
+**On first run**:
+
+- Flyway will create all database tables
+- Initial admin account and categories will be seeded
+- Check logs for migration status
 
 ## Accessing the Application
 
@@ -193,11 +220,24 @@ mvn clean test jacoco:report
 
 Flyway migrations are located in `src/main/resources/db/migration/`
 
-Migrations run automatically on application startup. To manually trigger:
+Migrations run automatically on application startup. Schema version can be checked:
 
 ```bash
+# Check migration status
+mvn flyway:info
+
+# Validate migrations
+mvn flyway:validate
+
+# Run migrations manually (if needed)
 mvn flyway:migrate
 ```
+
+**Migration Files**:
+
+- V1 to V7: Table creation scripts
+- V8: Additional indexes for performance
+- V9: Initial seed data (admin + categories)
 
 ### Building for Production
 
@@ -477,24 +517,28 @@ For detailed specifications, see the `spec/` folder:
 - `spec/requirements.md` - Project requirements
 - `spec/technical-architecture.md` - Technical architecture
 - `spec/data-models.md` - Database models
+- `spec/database-diagram.md` - Entity Relationship Diagram
 - `spec/IMPLEMENTATION_TASKS.md` - Implementation task list
+- `DATABASE_SETUP.md` - Database setup and troubleshooting guide
 - `ERROR_HANDLING_LOGGING.md` - Error handling and logging guide
 
 ## Version History
 
-- **v1.0.0** (2025-11-07): Initial project setup and environment configuration
+- **v1.0.0** (2025-11-10): Initial project setup with complete infrastructure
   - Spring Boot project structure with all dependencies
   - Maven configuration with spring-dotenv support
-  - Database setup with Flyway migrations
+  - MySQL database setup with Flyway migrations
+  - Complete database schema: 7 tables (users, categories, tours, bookings, reviews, comments, likes)
   - Environment-based configuration (dev/prod/test profiles)
   - Comprehensive error handling infrastructure with custom exceptions
   - Global exception handlers for API and MVC controllers
   - Request/response logging with correlation IDs
   - Profile-aware logging configuration with rotation policies
   - Security setup with externalized secrets
+  - Initial seed data: 1 admin account + 19 categories
   - Complete project documentation
 
 ---
 
 **Created**: November 6, 2025  
-**Last Updated**: November 7, 2025
+**Last Updated**: November 10, 2025
