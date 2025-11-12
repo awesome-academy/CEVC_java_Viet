@@ -1,4 +1,4 @@
-package com.sunbooking.dto.response;
+package com.sunbooking.dto.api.response;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

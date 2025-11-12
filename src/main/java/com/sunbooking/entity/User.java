@@ -28,6 +28,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
  * Entity representing a user in the system (both regular users and
@@ -39,6 +40,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = { "bookings", "reviews", "comments", "likes" })
 @EntityListeners(AuditingEntityListener.class)
 public class User {
 
