@@ -1,94 +1,136 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{admin/layout/main}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Sun Booking Tours Admin</title>
-    
-    <!-- Bootstrap CSS -->
-    <link th:href="@{/admin/plugins/bootstrap/css/bootstrap.min.css}" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link th:href="@{/admin/plugins/fontawesome/css/all.min.css}" rel="stylesheet">
-    <!-- Custom Dashboard CSS -->
-    <link th:href="@{/admin/css/dashboard.css}" rel="stylesheet">
+    <title>Dashboard</title>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">
-                <i class="fas fa-plane-departure me-2"></i>
-                Sun Booking Tours Admin
-            </a>
-            <div class="d-flex align-items-center">
-                <span class="text-white me-3">
-                    <i class="fas fa-user me-1"></i>
-                    <span sec:authentication="name">User</span>
-                </span>
-                <form th:action="@{/admin/logout}" method="post" class="logout-form">
-                    <button type="submit" class="btn btn-light btn-sm">
-                        <i class="fas fa-sign-out-alt me-1"></i>Logout
-                    </button>
-                </form>
-            </div>
-        </div>
-    </nav>
+
+<!-- Page Title -->
+<div layout:fragment="page-title">
+    <i class="fas fa-tachometer-alt"></i> Dashboard
+</div>
+
+<!-- Breadcrumb -->
+<ol class="breadcrumb float-sm-right" layout:fragment="breadcrumb">
+    <li class="breadcrumb-item active">Dashboard</li>
+</ol>
+
+<!-- Main Content -->
+<div layout:fragment="content">
     
-    <!-- Main Content -->
-    <div class="container-fluid main-content">
-        <!-- Welcome Card -->
-        <div class="welcome-card">
-            <h2>
-                <i class="fas fa-chart-line me-2"></i>
-                Welcome to Admin Dashboard
-            </h2>
-            <p class="mb-0">
-                You are successfully logged in as <strong th:text="${username}">admin@example.com</strong>
-            </p>
-        </div>
-        
-        <!-- Info Cards -->
-        <div class="row">
-            <div class="col-md-6">
-                <div class="info-card">
-                    <h5>
-                        <i class="fas fa-check-circle text-success me-2"></i>
-                        Authentication Status
-                    </h5>
-                    <ul class="list-unstyled mb-0">
-                        <li><i class="fas fa-check text-success me-2"></i>Session-based authentication active</li>
-                        <li><i class="fas fa-check text-success me-2"></i>CSRF protection enabled</li>
-                        <li><i class="fas fa-check text-success me-2"></i>Remember-me functionality available</li>
-                        <li><i class="fas fa-check text-success me-2"></i>Rate limiting protection active</li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="col-md-6">
-                <div class="info-card">
-                    <h5>
-                        <i class="fas fa-info-circle text-primary me-2"></i>
-                        Session Information
-                    </h5>
-                    <ul class="list-unstyled mb-0">
-                        <li><i class="fas fa-user me-2"></i>Email: <strong th:text="${username}">N/A</strong></li>
-                        <li><i class="fas fa-shield-alt me-2"></i>Role: <strong>ADMIN</strong></li>
-                        <li><i class="fas fa-clock me-2"></i>Session timeout: 30 minutes</li>
-                        <li><i class="fas fa-desktop me-2"></i>Max concurrent sessions: 1</li>
-                    </ul>
+    <!-- Welcome Alert -->
+    <div class="alert alert-success alert-dismissible fade show">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <h5><i class="icon fas fa-check"></i> Welcome!</h5>
+        You are successfully logged in as <strong th:text="${username}">admin@example.com</strong>
+    </div>
+
+    <!-- Info boxes -->
+    <div class="row">
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="info-box">
+                <span class="info-box-icon bg-info elevation-1">
+                    <i class="fas fa-users"></i>
+                </span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Total Users</span>
+                    <span class="info-box-number">0</span>
                 </div>
             </div>
         </div>
         
-        <div class="row">
-            <div class="col-12">
-                <div class="info-card">
-                    <h5>
-                        <i class="fas fa-lightbulb text-warning me-2"></i>
-                        Task 3.2 Implementation Complete
-                    </h5>
-                    <p class="mb-2">The following features have been successfully implemented:</p>
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="info-box mb-3">
+                <span class="info-box-icon bg-success elevation-1">
+                    <i class="fas fa-map-marked-alt"></i>
+                </span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Total Tours</span>
+                    <span class="info-box-number">0</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="info-box mb-3">
+                <span class="info-box-icon bg-warning elevation-1">
+                    <i class="fas fa-calendar-check"></i>
+                </span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Total Bookings</span>
+                    <span class="info-box-number">0</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="info-box mb-3">
+                <span class="info-box-icon bg-danger elevation-1">
+                    <i class="fas fa-dollar-sign"></i>
+                </span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Total Revenue</span>
+                    <span class="info-box-number">$0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Implementation Status Cards -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card card-success">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-check-circle"></i> Authentication Status
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success mr-2"></i>Session-based authentication active</li>
+                        <li><i class="fas fa-check text-success mr-2"></i>CSRF protection enabled</li>
+                        <li><i class="fas fa-check text-success mr-2"></i>Remember-me functionality available</li>
+                        <li><i class="fas fa-check text-success mr-2"></i>Rate limiting protection active</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-info-circle"></i> Session Information
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-user mr-2"></i>Email: <strong th:text="${username}">N/A</strong></li>
+                        <li><i class="fas fa-shield-alt mr-2"></i>Role: <strong>ADMIN</strong></li>
+                        <li><i class="fas fa-clock mr-2"></i>Session timeout: 30 minutes</li>
+                        <li><i class="fas fa-desktop mr-2"></i>Max concurrent sessions: 1</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Implementation Details -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-warning">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-lightbulb"></i> Task 3.2 & 4.1 Implementation Complete
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <h5>Task 3.2 - Admin Session Authentication ✅</h5>
                     <ul>
                         <li><strong>Custom UserDetailsService:</strong> Loads admin users from database</li>
                         <li><strong>Session-based Authentication:</strong> Secure session management with configurable timeout</li>
@@ -99,17 +141,28 @@
                         <li><strong>Custom Success/Failure Handlers:</strong> Handles authentication events</li>
                         <li><strong>Secure Logout:</strong> Invalidates session and clears cookies</li>
                     </ul>
+                    
+                    <h5 class="mt-3">Task 4.1 - Admin Layout & UI Enhancement ✅</h5>
+                    <ul>
+                        <li><strong>Main Layout Template:</strong> Reusable AdminLTE layout with sidebar</li>
+                        <li><strong>Header Fragment:</strong> Top navigation with user dropdown and logout</li>
+                        <li><strong>Sidebar Fragment:</strong> Complete navigation menu for all admin modules</li>
+                        <li><strong>Footer Fragment:</strong> Copyright and version information</li>
+                        <li><strong>Custom CSS & JS:</strong> Enhanced styling and JavaScript utilities</li>
+                        <li><strong>Responsive Design:</strong> Mobile-friendly layout</li>
+                    </ul>
+                    
                     <div class="alert alert-info mt-3">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <strong>Note:</strong> This is a temporary dashboard for testing Task 3.2. 
-                        The full dashboard with statistics will be implemented in Task 4.2.
+                        <i class="fas fa-info-circle mr-2"></i>
+                        <strong>Next Steps:</strong> Task 4.2 will implement the full dashboard with real statistics, 
+                        charts, and recent activities from the database.
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    
-    <!-- Bootstrap JS -->
-    <script th:src="@{/admin/plugins/bootstrap/js/bootstrap.bundle.min.js}"></script>
+
+</div>
+
 </body>
 </html>
