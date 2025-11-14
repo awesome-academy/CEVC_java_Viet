@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import com.sunbooking.dto.response.ErrorResponse;
+import com.sunbooking.dto.api.response.ErrorResponse;
 
 /**
  * Global exception handler for REST API endpoints

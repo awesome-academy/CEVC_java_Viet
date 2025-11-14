@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Sun Booking Tours Admin</title>
+    
+    <!-- Bootstrap CSS -->
+    <link th:href="@{/admin/plugins/bootstrap/css/bootstrap.min.css}" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link th:href="@{/admin/plugins/fontawesome/css/all.min.css}" rel="stylesheet">
+    <!-- Custom Dashboard CSS -->
+    <link th:href="@{/admin/css/dashboard.css}" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-plane-departure me-2"></i>
+                Sun Booking Tours Admin
+            </a>
+            <div class="d-flex align-items-center">
+                <span class="text-white me-3">
+                    <i class="fas fa-user me-1"></i>
+                    <span sec:authentication="name">User</span>
+                </span>
+                <form th:action="@{/admin/logout}" method="post" class="logout-form">
+                    <button type="submit" class="btn btn-light btn-sm">
+                        <i class="fas fa-sign-out-alt me-1"></i>Logout
+                    </button>
+                </form>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="container-fluid main-content">
+        <!-- Welcome Card -->
+        <div class="welcome-card">
+            <h2>
+                <i class="fas fa-chart-line me-2"></i>
+                Welcome to Admin Dashboard
+            </h2>
+            <p class="mb-0">
+                You are successfully logged in as <strong th:text="${username}">admin@example.com</strong>
+            </p>
+        </div>
+        
+        <!-- Info Cards -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="info-card">
+                    <h5>
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        Authentication Status
+                    </h5>
+                    <ul class="list-unstyled mb-0">
+                        <li><i class="fas fa-check text-success me-2"></i>Session-based authentication active</li>
+                        <li><i class="fas fa-check text-success me-2"></i>CSRF protection enabled</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Remember-me functionality available</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Rate limiting protection active</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="info-card">
+                    <h5>
+                        <i class="fas fa-info-circle text-primary me-2"></i>
+                        Session Information
+                    </h5>
+                    <ul class="list-unstyled mb-0">
+                        <li><i class="fas fa-user me-2"></i>Email: <strong th:text="${username}">N/A</strong></li>
+                        <li><i class="fas fa-shield-alt me-2"></i>Role: <strong>ADMIN</strong></li>
+                        <li><i class="fas fa-clock me-2"></i>Session timeout: 30 minutes</li>
+                        <li><i class="fas fa-desktop me-2"></i>Max concurrent sessions: 1</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-12">
+                <div class="info-card">
+                    <h5>
+                        <i class="fas fa-lightbulb text-warning me-2"></i>
+                        Task 3.2 Implementation Complete
+                    </h5>
+                    <p class="mb-2">The following features have been successfully implemented:</p>
+                    <ul>
+                        <li><strong>Custom UserDetailsService:</strong> Loads admin users from database</li>
+                        <li><strong>Session-based Authentication:</strong> Secure session management with configurable timeout</li>
+                        <li><strong>Custom Login Page:</strong> Beautiful, responsive login form with validation</li>
+                        <li><strong>Remember-me Functionality:</strong> Persistent token store in database (14 days validity)</li>
+                        <li><strong>Rate Limiting:</strong> Prevents brute force attacks (5 attempts, 15 min lockout)</li>
+                        <li><strong>CSRF Protection:</strong> Enabled for all admin endpoints</li>
+                        <li><strong>Custom Success/Failure Handlers:</strong> Handles authentication events</li>
+                        <li><strong>Secure Logout:</strong> Invalidates session and clears cookies</li>
+                    </ul>
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Note:</strong> This is a temporary dashboard for testing Task 3.2. 
+                        The full dashboard with statistics will be implemented in Task 4.2.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script th:src="@{/admin/plugins/bootstrap/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

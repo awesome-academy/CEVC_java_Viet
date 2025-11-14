@@ -16,7 +16,7 @@ INSERT INTO users (
 VALUES (
         'System Administrator',
         'admin@sunbooking.com',
-        '$2a$10$rMJbXGKBXKX3PXgBvXKXzeTqYjPxL6L6xIY8qx8sMQxCzNvQZqRuC',
+        '$2a$10$IdiPvLHuq/teafhRtEOLL.ym5lScK/2wtqFBiqXo9W7QzlVGs.90.',
         '+84123456789',
         'ADMIN',
         TRUE,
@@ -24,7 +24,7 @@ VALUES (
         CURRENT_TIMESTAMP
     );
 -- Insert default categories for tours
-INSERT INTO categories (name, type, created_at, updated_at)
+INSERT IGNORE INTO categories (name, type, created_at, updated_at)
 VALUES (
         'Adventure Tours',
         'TOUR',
@@ -56,7 +56,7 @@ VALUES (
         CURRENT_TIMESTAMP
     );
 -- Insert default categories for news
-INSERT INTO categories (name, type, created_at, updated_at)
+INSERT IGNORE INTO categories (name, type, created_at, updated_at)
 VALUES (
         'Travel Tips',
         'NEWS',
@@ -82,7 +82,7 @@ VALUES (
         CURRENT_TIMESTAMP
     );
 -- Insert default categories for food
-INSERT INTO categories (name, type, created_at, updated_at)
+INSERT IGNORE INTO categories (name, type, created_at, updated_at)
 VALUES (
         'Vietnamese Cuisine',
         'FOOD',
@@ -114,7 +114,7 @@ VALUES (
         CURRENT_TIMESTAMP
     );
 -- Insert default categories for places
-INSERT INTO categories (name, type, created_at, updated_at)
+INSERT IGNORE INTO categories (name, type, created_at, updated_at)
 VALUES (
         'Historical Sites',
         'PLACE',
