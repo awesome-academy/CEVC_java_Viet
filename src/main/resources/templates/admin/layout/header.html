@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Header</title>
+</head>
+<body>
+<!-- Navbar -->
+<nav class="main-header navbar navbar-expand navbar-white navbar-light" th:fragment="header">
+    <!-- Left navbar links -->
+    <ul class="navbar-nav">
+        <li class="nav-item">
+            <a class="nav-link" data-widget="pushmenu" href="#" role="button">
+                <i class="fas fa-bars"></i>
+            </a>
+        </li>
+        <li class="nav-item d-none d-sm-inline-block">
+            <a th:href="@{/admin/dashboard}" class="nav-link">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </li>
+    </ul>
+
+    <!-- Right navbar links -->
+    <ul class="navbar-nav ml-auto">
+        <!-- Notifications Dropdown Menu -->
+        <li class="nav-item dropdown">
+            <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false">
+                <i class="far fa-bell"></i>
+                <span class="badge badge-warning navbar-badge">0</span>
+            </a>
+            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                <span class="dropdown-item dropdown-header">No New Notifications</span>
+                <div class="dropdown-divider"></div>
+                <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
+            </div>
+        </li>
+
+        <!-- User Account Menu -->
+        <li class="nav-item dropdown user-menu">
+            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" aria-expanded="false">
+                <i class="far fa-user-circle fa-lg"></i>
+                <span class="d-none d-md-inline ml-1" sec:authentication="name">User</span>
+            </a>
+            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                <!-- User image -->
+                <div class="dropdown-item dropdown-header">
+                    <div class="image mb-2">
+                        <i class="far fa-user-circle fa-3x text-secondary"></i>
+                    </div>
+                    <p class="mb-0">
+                        <strong sec:authentication="name">User</strong><br>
+                        <small class="text-muted" sec:authentication="principal.authorities">ROLE_ADMIN</small>
+                    </p>
+                </div>
+                <div class="dropdown-divider"></div>
+                
+                <!-- Menu Body -->
+                <a href="#" class="dropdown-item">
+                    <i class="fas fa-user mr-2"></i> Profile
+                </a>
+                <a href="#" class="dropdown-item">
+                    <i class="fas fa-cog mr-2"></i> Settings
+                </a>
+                <div class="dropdown-divider"></div>
+                
+                <!-- Logout -->
+                <form th:action="@{/admin/logout}" method="post" class="dropdown-item p-0">
+                    <button type="submit" class="btn btn-link dropdown-item text-danger" style="text-decoration: none;">
+                        <i class="fas fa-sign-out-alt mr-2"></i> Sign out
+                    </button>
+                </form>
+            </div>
+        </li>
+
+        <!-- Fullscreen Toggle -->
+        <li class="nav-item">
+            <a class="nav-link" data-widget="fullscreen" href="#" role="button">
+                <i class="fas fa-expand-arrows-alt"></i>
+            </a>
+        </li>
+    </ul>
+</nav>
+<!-- /.navbar -->
+</body>
+</html>
