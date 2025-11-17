@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{admin/layout/main}">
+<head>
+    <title>User Management</title>
+</head>
+<body>
+
+<!-- Page Title -->
+<div layout:fragment="page-title">
+    <i class="fas fa-users"></i> User Management
+</div>
+
+<!-- Breadcrumb -->
+<ol class="breadcrumb float-sm-right" layout:fragment="breadcrumb">
+    <li class="breadcrumb-item"><a th:href="@{/admin/dashboard}">Home</a></li>
+    <li class="breadcrumb-item active">Users</li>
+</ol>
+
+<!-- Main Content -->
+<div layout:fragment="content">
+
+    <!-- Success/Error Messages -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <i class="icon fas fa-check"></i>
+        <span th:text="${successMessage}"></span>
+    </div>
+
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <i class="icon fas fa-ban"></i>
+        <span th:text="${errorMessage}"></span>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row">
+        <div class="col-lg-4 col-6">
+            <div class="small-box bg-info">
+                <div class="inner">
+                    <h3 th:text="${statistics.totalUsers}">0</h3>
+                    <p>Total Users</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-users"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-6">
+            <div class="small-box bg-success">
+                <div class="inner">
+                    <h3 th:text="${statistics.activeUsers}">0</h3>
+                    <p>Active Users</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-user-check"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-6">
+            <div class="small-box bg-danger">
+                <div class="inner">
+                    <h3 th:text="${statistics.inactiveUsers}">0</h3>
+                    <p>Inactive Users</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-user-times"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter Card -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title"><i class="fas fa-search"></i> Search & Filter</h3>
+            <div class="card-tools">
+                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                    <i class="fas fa-minus"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/admin/users}" method="get">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="keyword">Search Keyword</label>
+                            <input type="text" class="form-control" id="keyword" name="keyword"
+                                   th:value="${criteria.keyword}" placeholder="Name or email...">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="isActive">Status</label>
+                            <select class="form-control" id="isActive" name="isActive">
+                                <option value="">All Statuses</option>
+                                <option value="true" th:selected="${criteria.isActive == true}">Active</option>
+                                <option value="false" th:selected="${criteria.isActive == false}">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <button type="submit" class="btn btn-primary btn-block">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Users Table Card -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title"><i class="fas fa-list"></i> Users List</h3>
+        </div>
+        <div class="card-body table-responsive p-0">
+            <table class="table table-hover text-nowrap">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Status</th>
+                        <th>Created At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${users.empty}">
+                        <td colspan="7" class="text-center">No users found</td>
+                    </tr>
+                    <tr th:each="user : ${users.content}">
+                        <td th:text="${user.id}">1</td>
+                        <td th:text="${user.name}">John Doe</td>
+                        <td th:text="${user.email}">john@example.com</td>
+                        <td th:text="${user.phone ?: 'N/A'}">N/A</td>
+                        <td>
+                            <span class="badge" th:classappend="${user.statusBadgeClass}"
+                                  th:text="${user.statusText}">Active</span>
+                        </td>
+                        <td th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd HH:mm')}">2024-01-01</td>
+                        <td>
+                            <div class="btn-group">
+                                <a th:href="@{/admin/users/{id}(id=${user.id})}"
+                                   class="btn btn-info btn-sm" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a th:href="@{/admin/users/{id}/edit(id=${user.id})}"
+                                   class="btn btn-warning btn-sm" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer clearfix" th:if="${!users.empty}">
+            <div class="row">
+                <div class="col-sm-6">
+                    <p class="text-muted">
+                        Showing <span th:text="${users.numberOfElements}">0</span>
+                        of <span th:text="${users.totalElements}">0</span> users
+                    </p>
+                </div>
+                <div class="col-sm-6">
+                    <ul class="pagination pagination-sm float-right" th:if="${users.totalPages > 1}">
+                        <!-- First Page -->
+                        <li class="page-item" th:classappend="${users.first ? 'disabled' : ''}">
+                            <a class="page-link"
+                               th:href="@{/admin/users(page=0,keyword=${criteria.keyword},isActive=${criteria.isActive})}">
+                                &laquo;
+                            </a>
+                        </li>
+
+                        <!-- Previous Page -->
+                        <li class="page-item" th:classappend="${!users.hasPrevious() ? 'disabled' : ''}">
+                            <a class="page-link"
+                               th:href="@{/admin/users(page=${users.number - 1},keyword=${criteria.keyword},isActive=${criteria.isActive})}">
+                                &lsaquo;
+                            </a>
+                        </li>
+
+                        <!-- Page Numbers -->
+                        <li class="page-item" th:each="pageNum : ${#numbers.sequence(0, users.totalPages - 1)}"
+                            th:if="${pageNum >= users.number - 2 && pageNum <= users.number + 2}"
+                            th:classappend="${pageNum == users.number ? 'active' : ''}">
+                            <a class="page-link"
+                               th:href="@{/admin/users(page=${pageNum},keyword=${criteria.keyword},isActive=${criteria.isActive})}"
+                               th:text="${pageNum + 1}">1</a>
+                        </li>
+
+                        <!-- Next Page -->
+                        <li class="page-item" th:classappend="${!users.hasNext() ? 'disabled' : ''}">
+                            <a class="page-link"
+                               th:href="@{/admin/users(page=${users.number + 1},keyword=${criteria.keyword},isActive=${criteria.isActive})}">
+                                &rsaquo;
+                            </a>
+                        </li>
+
+                        <!-- Last Page -->
+                        <li class="page-item" th:classappend="${users.last ? 'disabled' : ''}">
+                            <a class="page-link"
+                               th:href="@{/admin/users(page=${users.totalPages - 1},keyword=${criteria.keyword},isActive=${criteria.isActive})}">
+                                &raquo;
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
