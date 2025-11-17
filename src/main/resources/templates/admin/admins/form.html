@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout/main}">
+<head>
+    <title th:text="${isEdit ? 'Edit Admin' : 'Create Admin'}">Admin Form</title>
+</head>
+<body>
+
+<div layout:fragment="page-title">
+    <i class="fas" th:classappend="${isEdit ? 'fa-edit' : 'fa-plus'}"></i>
+    <span th:text="${isEdit ? 'Edit Admin Account' : 'Create New Admin Account'}">Admin Form</span>
+</div>
+
+<ol class="breadcrumb float-sm-right" layout:fragment="breadcrumb">
+    <li class="breadcrumb-item"><a th:href="@{/admin/dashboard}">Home</a></li>
+    <li class="breadcrumb-item"><a th:href="@{/admin/admins}">Admins</a></li>
+    <li class="breadcrumb-item active" th:text="${isEdit ? 'Edit' : 'Create'}">Form</li>
+</ol>
+
+<div layout:fragment="content">
+
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <i class="icon fas fa-ban"></i>
+        <span th:text="${errorMessage}"></span>
+    </div>
+
+    <div class="row">
+        <!-- Left Column - Form Card -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-user-shield"></i>
+                        <span th:text="${isEdit ? 'Edit Admin Information' : 'Create New Admin Account'}"></span>
+                    </h3>
+                </div>
+                <form th:action="${isEdit ? '/admin/admins/' + adminForm.id + '/edit' : '/admin/admins/create'}"
+                      th:object="${adminForm}" method="post">
+
+                    <div class="card-body">
+
+                        <!-- Name -->
+                        <div class="form-group">
+                            <label for="name" class="required">Full Name</label>
+                            <input type="text" class="form-control" id="name" th:field="*{name}"
+                                   th:classappend="${#fields.hasErrors('name')} ? 'is-invalid' : ''"
+                                   placeholder="Enter full name">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">
+                                Name error
+                            </div>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="form-group">
+                            <label for="email" class="required">Email</label>
+                            <input type="email" class="form-control" id="email" th:field="*{email}"
+                                   th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''"
+                                   placeholder="Enter email address">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">
+                                Email error
+                            </div>
+                            <small class="form-text text-muted">
+                                This email will be used for login authentication.
+                            </small>
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="text" class="form-control" id="phone" th:field="*{phone}"
+                                   th:classappend="${#fields.hasErrors('phone')} ? 'is-invalid' : ''"
+                                   placeholder="Enter phone number">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}">
+                                Phone error
+                            </div>
+                        </div>
+
+                        <!-- Password (Required for create, optional for edit) -->
+                        <div class="form-group">
+                            <label for="password" th:classappend="${!isEdit ? 'required' : ''}">Password</label>
+                            <input type="password" class="form-control" id="password" th:field="*{password}"
+                                   th:classappend="${#fields.hasErrors('password')} ? 'is-invalid' : ''"
+                                   th:placeholder="${isEdit ? 'Leave blank to keep current password' : 'Enter password (min 6 characters)'}">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">
+                                Password error
+                            </div>
+                            <small class="form-text text-muted" th:if="${isEdit}">
+                                <i class="fas fa-info-circle"></i> Leave blank if you don't want to change the password
+                            </small>
+                            <small class="form-text text-muted" th:unless="${isEdit}">
+                                <i class="fas fa-lock"></i> Minimum 6 characters required
+                            </small>
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="form-group">
+                            <label for="confirmPassword" th:classappend="${!isEdit ? 'required' : ''}">Confirm Password</label>
+                            <input type="password" class="form-control" id="confirmPassword" th:field="*{confirmPassword}"
+                                   th:classappend="${#fields.hasErrors('confirmPassword')} ? 'is-invalid' : ''"
+                                   placeholder="Confirm password">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('confirmPassword')}"
+                                 th:errors="*{confirmPassword}">
+                                Confirm password error
+                            </div>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="form-group">
+                            <label for="isActive" class="required">Status</label>
+                            <select class="form-control" id="isActive" th:field="*{isActive}"
+                                    th:classappend="${#fields.hasErrors('isActive')} ? 'is-invalid' : ''">
+                                <option value="true">Active</option>
+                                <option value="false">Inactive</option>
+                            </select>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('isActive')}" th:errors="*{isActive}">
+                                Status error
+                            </div>
+                            <small class="form-text text-muted">
+                                <i class="fas fa-info-circle"></i> Inactive admins cannot log in to the system
+                            </small>
+                        </div>
+
+                    </div>
+
+                    <div class="card-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            <span th:text="${isEdit ? 'Update Admin' : 'Create Admin'}"></span>
+                        </button>
+                        <a th:href="@{/admin/admins}" class="btn btn-default">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right Column - Security Notice Card -->
+        <div class="col-md-4">
+            <div class="card card-warning">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-exclamation-triangle"></i> Security Guidelines</h3>
+                </div>
+                <div class="card-body">
+                    <h5><i class="fas fa-shield-alt"></i> Admin Privileges</h5>
+                    <p class="text-sm">
+                        Admin accounts have full access to the system including:
+                    </p>
+                    <ul class="text-sm">
+                        <li>User management</li>
+                        <li>Content management (tours, categories, reviews)</li>
+                        <li>Booking management</li>
+                        <li>System settings</li>
+                    </ul>
+
+                    <hr>
+
+                    <h5><i class="fas fa-lock"></i> Password Requirements</h5>
+                    <ul class="text-sm">
+                        <li>Minimum 6 characters</li>
+                        <li>Passwords are encrypted before storage</li>
+                        <li>Use strong, unique passwords</li>
+                    </ul>
+
+                    <hr>
+
+                    <h5><i class="fas fa-info-circle"></i> Important Notes</h5>
+                    <ul class="text-sm">
+                        <li>You cannot delete or deactivate your own account</li>
+                        <li>The last active admin cannot be deactivated</li>
+                        <li>Email addresses must be unique</li>
+                        <li>All admin actions are logged</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Role Information Card -->
+            <div class="card card-info">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-user-tag"></i> Role Information</h3>
+                </div>
+                <div class="card-body">
+                    <p class="text-sm">
+                        <strong>Role:</strong> <span class="badge badge-primary">ADMIN</span>
+                    </p>
+                    <p class="text-sm">
+                        This account will be automatically assigned the ADMIN role with full system access.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

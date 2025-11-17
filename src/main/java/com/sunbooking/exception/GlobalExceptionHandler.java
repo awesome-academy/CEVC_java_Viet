@@ -124,6 +124,25 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handle IllegalStateException
+     * Used for business rule violations (e.g., cannot delete own account, last
+     * admin)
+     */
+    @ExceptionHandler(IllegalStateException.class)
+    public ModelAndView handleIllegalStateException(
+            IllegalStateException ex, HttpServletRequest request) {
+
+        logger.warn("Illegal state: {}", ex.getMessage());
+
+        ModelAndView mav = new ModelAndView("error/400");
+        mav.addObject("errorMessage", ex.getMessage());
+        mav.addObject("requestUrl", request.getRequestURI());
+        mav.setStatus(HttpStatus.BAD_REQUEST);
+
+        return mav;
+    }
+
+    /**
      * Determine the form view name from the request URI
      * 
      * @param uri the request URI (e.g., /admin/users/123/edit)
