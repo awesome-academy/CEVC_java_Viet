@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title layout:title-pattern="$CONTENT_TITLE - $LAYOUT_TITLE">Sun Booking Tours Admin</title>
+
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" th:href="@{/admin/plugins/fontawesome/css/all.min.css}">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" th:href="@{/admin/plugins/bootstrap/css/bootstrap.min.css}">
+    <!-- AdminLTE CSS -->
+    <link rel="stylesheet" th:href="@{/admin/plugins/adminlte/adminlte.min.css}">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" th:href="@{/admin/css/admin-custom.css}">
+    
+    <!-- Page Specific CSS -->
+    <th:block layout:fragment="styles"></th:block>
+</head>
+<body class="hold-transition sidebar-mini layout-fixed">
+<div class="wrapper">
+
+    <!-- Navbar -->
+    <th:block th:replace="~{admin/layout/header :: header}"></th:block>
+    <!-- /.navbar -->
+
+    <!-- Main Sidebar Container -->
+    <th:block th:replace="~{admin/layout/sidebar :: sidebar}"></th:block>
+    <!-- /.main-sidebar -->
+
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1 class="m-0" layout:fragment="page-title">Dashboard</h1>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right" layout:fragment="breadcrumb">
+                            <li class="breadcrumb-item"><a th:href="@{/admin/dashboard}">Home</a></li>
+                            <li class="breadcrumb-item active">Dashboard</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.content-header -->
+
+        <!-- Main content -->
+        <section class="content">
+            <div class="container-fluid">
+                <!-- Page Content -->
+                <div layout:fragment="content">
+                    <p>Page content goes here</p>
+                </div>
+                <!-- /.page-content -->
+            </div>
+        </section>
+        <!-- /.content -->
+    </div>
+    <!-- /.content-wrapper -->
+
+    <!-- Footer -->
+    <th:block th:replace="~{admin/layout/footer :: footer}"></th:block>
+    <!-- /.footer -->
+
+    <!-- Control Sidebar -->
+    <aside class="control-sidebar control-sidebar-dark">
+        <!-- Control sidebar content goes here -->
+    </aside>
+    <!-- /.control-sidebar -->
+</div>
+<!-- ./wrapper -->
+
+<!-- jQuery -->
+<script th:src="@{/admin/plugins/jquery/jquery-3.6.0.min.js}"></script>
+<!-- Bootstrap 4 -->
+<script th:src="@{/admin/plugins/bootstrap/js/bootstrap.bundle.min.js}"></script>
+<!-- AdminLTE App -->
+<script th:src="@{/admin/plugins/adminlte/adminlte.min.js}"></script>
+<!-- Custom JS -->
+<script th:src="@{/admin/js/admin-custom.js}"></script>
+
+<!-- Page Specific Scripts -->
+<th:block layout:fragment="scripts"></th:block>
+</body>
+</html>
