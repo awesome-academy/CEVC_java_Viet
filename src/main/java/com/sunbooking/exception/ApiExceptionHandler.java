@@ -1,11 +1,14 @@
 package com.sunbooking.exception;
 
 import java.nio.file.AccessDeniedException;
+import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -24,6 +27,9 @@ import com.sunbooking.dto.api.response.ErrorResponse;
 public class ApiExceptionHandler {
 
         private static final Logger logger = LoggerFactory.getLogger(ApiExceptionHandler.class);
+
+        @Autowired
+        private MessageSource messageSource;
 
         /**
          * Handle ResourceNotFoundException
@@ -137,13 +143,15 @@ public class ApiExceptionHandler {
                         MethodArgumentNotValidException ex, HttpServletRequest request) {
 
                 logger.warn("Validation failed: {}", ex.getMessage());
+                Locale locale = request.getLocale();
 
                 ErrorCode errorCode = ErrorCode.INVALID_INPUT;
+                String detailMessage = messageSource.getMessage("api.error.validation.failed", null, locale);
                 ErrorResponse errorResponse = new ErrorResponse(
                                 errorCode.getStatusValue(),
                                 errorCode.getCode(),
                                 errorCode.getMessage(),
-                                "One or more fields have validation errors",
+                                detailMessage,
                                 request.getRequestURI());
 
                 // Add all validation errors
@@ -164,13 +172,15 @@ public class ApiExceptionHandler {
                         AccessDeniedException ex, HttpServletRequest request) {
 
                 logger.warn("Access denied: {}", ex.getMessage());
+                Locale locale = request.getLocale();
 
                 ErrorCode errorCode = ErrorCode.ACCESS_DENIED;
+                String detailMessage = messageSource.getMessage("api.error.access.denied", null, locale);
                 ErrorResponse errorResponse = new ErrorResponse(
                                 errorCode.getStatusValue(),
                                 errorCode.getCode(),
                                 errorCode.getMessage(),
-                                "You don't have permission to access this resource",
+                                detailMessage,
                                 request.getRequestURI());
 
                 return new ResponseEntity<>(errorResponse, errorCode.getHttpStatus());
@@ -184,13 +194,15 @@ public class ApiExceptionHandler {
                         NoHandlerFoundException ex, HttpServletRequest request) {
 
                 logger.warn("No handler found for: {} {}", ex.getHttpMethod(), ex.getRequestURL());
+                Locale locale = request.getLocale();
 
                 ErrorCode errorCode = ErrorCode.ENDPOINT_NOT_FOUND;
+                String detailMessage = messageSource.getMessage("api.error.endpoint.not.found", null, locale);
                 ErrorResponse errorResponse = new ErrorResponse(
                                 errorCode.getStatusValue(),
                                 errorCode.getCode(),
                                 errorCode.getMessage(),
-                                "The requested endpoint does not exist",
+                                detailMessage,
                                 request.getRequestURI());
 
                 return new ResponseEntity<>(errorResponse, errorCode.getHttpStatus());
@@ -204,13 +216,15 @@ public class ApiExceptionHandler {
                         Exception ex, HttpServletRequest request) {
 
                 logger.error("Unexpected error occurred: ", ex);
+                Locale locale = request.getLocale();
 
                 ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
+                String detailMessage = messageSource.getMessage("api.error.internal", null, locale);
                 ErrorResponse errorResponse = new ErrorResponse(
                                 errorCode.getStatusValue(),
                                 errorCode.getCode(),
                                 errorCode.getMessage(),
-                                "An unexpected error occurred. Please try again later.",
+                                detailMessage,
                                 request.getRequestURI());
 
                 return new ResponseEntity<>(errorResponse, errorCode.getHttpStatus());
