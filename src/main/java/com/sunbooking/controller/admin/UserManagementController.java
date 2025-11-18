@@ -1,5 +1,10 @@
 package com.sunbooking.controller.admin;
 
+import static com.sunbooking.constant.ViewConstants.ADMIN_USERS_DETAIL;
+import static com.sunbooking.constant.ViewConstants.ADMIN_USERS_FORM;
+import static com.sunbooking.constant.ViewConstants.ADMIN_USERS_LIST;
+import static com.sunbooking.constant.ViewConstants.REDIRECT_ADMIN_USERS;
+
 import javax.validation.Validator;
 
 import org.slf4j.Logger;
@@ -92,7 +97,7 @@ public class UserManagementController {
         model.addAttribute("statistics", statistics);
         model.addAttribute("criteria", criteria);
 
-        return "admin/users/list";
+        return ADMIN_USERS_LIST;
     }
 
     /**
@@ -109,7 +114,7 @@ public class UserManagementController {
         UserDTO user = userManagementService.getUserById(id);
         model.addAttribute("user", user);
 
-        return "admin/users/detail";
+        return ADMIN_USERS_DETAIL;
     }
 
     /**
@@ -129,7 +134,7 @@ public class UserManagementController {
         model.addAttribute("userForm", userForm);
         model.addAttribute("isEdit", true);
 
-        return "admin/users/form";
+        return ADMIN_USERS_FORM;
     }
 
     /**
@@ -171,7 +176,7 @@ public class UserManagementController {
         if (bindingResult.hasErrors()) {
             logger.debug("Validation errors: {}", bindingResult.getAllErrors());
             model.addAttribute("isEdit", true);
-            return "admin/users/form";
+            return ADMIN_USERS_FORM;
         }
 
         userManagementService.updateUser(id, userForm);
@@ -197,7 +202,7 @@ public class UserManagementController {
                 null, LocaleContextHolder.getLocale());
         redirectAttributes.addFlashAttribute("successMessage", successMessage);
 
-        return "redirect:/admin/users";
+        return REDIRECT_ADMIN_USERS;
     }
 
     /**

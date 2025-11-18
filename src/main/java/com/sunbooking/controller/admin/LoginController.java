@@ -1,5 +1,9 @@
 package com.sunbooking.controller.admin;
 
+import static com.sunbooking.constant.ViewConstants.ADMIN_DASHBOARD;
+import static com.sunbooking.constant.ViewConstants.ADMIN_LOGIN;
+import static com.sunbooking.constant.ViewConstants.REDIRECT_ADMIN_DASHBOARD;
+
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
@@ -66,7 +70,7 @@ public class LoginController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
             log.debug("User already authenticated, redirecting to dashboard");
-            return "redirect:/admin/dashboard";
+            return REDIRECT_ADMIN_DASHBOARD;
         }
 
         Locale locale = request.getLocale();
@@ -101,7 +105,7 @@ public class LoginController {
             log.debug("Session expired");
         }
 
-        return "admin/auth/login";
+        return ADMIN_LOGIN;
     }
 
     /**
@@ -117,6 +121,6 @@ public class LoginController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         model.addAttribute("username", auth.getName());
         log.debug("Dashboard accessed by user: {}", auth.getName());
-        return "admin/dashboard";
+        return ADMIN_DASHBOARD;
     }
 }

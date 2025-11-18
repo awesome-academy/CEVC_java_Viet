@@ -1,5 +1,10 @@
 package com.sunbooking.controller.admin;
 
+import static com.sunbooking.constant.ViewConstants.ADMIN_ADMINS_DETAIL;
+import static com.sunbooking.constant.ViewConstants.ADMIN_ADMINS_FORM;
+import static com.sunbooking.constant.ViewConstants.ADMIN_ADMINS_LIST;
+import static com.sunbooking.constant.ViewConstants.REDIRECT_ADMIN_ADMINS;
+
 import javax.validation.Valid;
 import javax.validation.Validator;
 
@@ -80,7 +85,7 @@ public class AdminManagementController {
         model.addAttribute("statistics", statistics);
         model.addAttribute("criteria", criteria);
 
-        return "admin/admins/list";
+        return ADMIN_ADMINS_LIST;
     }
 
     /**
@@ -93,7 +98,7 @@ public class AdminManagementController {
         AdminDTO admin = adminManagementService.getAdminById(id);
         model.addAttribute("admin", admin);
 
-        return "admin/admins/detail";
+        return ADMIN_ADMINS_DETAIL;
     }
 
     /**
@@ -109,7 +114,7 @@ public class AdminManagementController {
         model.addAttribute("adminForm", adminForm);
         model.addAttribute("isEdit", false);
 
-        return "admin/admins/form";
+        return ADMIN_ADMINS_FORM;
     }
 
     /**
@@ -127,7 +132,7 @@ public class AdminManagementController {
         // Check for validation errors
         if (bindingResult.hasErrors()) {
             model.addAttribute("isEdit", false);
-            return "admin/admins/form";
+            return ADMIN_ADMINS_FORM;
         }
 
         AdminDTO createdAdmin = adminManagementService.createAdmin(adminForm);
@@ -150,7 +155,7 @@ public class AdminManagementController {
         model.addAttribute("adminForm", adminForm);
         model.addAttribute("isEdit", true);
 
-        return "admin/admins/form";
+        return ADMIN_ADMINS_FORM;
     }
 
     /**
@@ -182,7 +187,7 @@ public class AdminManagementController {
         if (bindingResult.hasErrors()) {
             logger.debug("Validation errors: {}", bindingResult.getAllErrors());
             model.addAttribute("isEdit", true);
-            return "admin/admins/form";
+            return ADMIN_ADMINS_FORM;
         }
 
         adminManagementService.updateAdmin(id, adminForm);
@@ -204,7 +209,7 @@ public class AdminManagementController {
                 null, LocaleContextHolder.getLocale());
         redirectAttributes.addFlashAttribute("successMessage", successMessage);
 
-        return "redirect:/admin/admins";
+        return REDIRECT_ADMIN_ADMINS;
     }
 
     /**
