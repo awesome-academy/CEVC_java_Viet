@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout/main}">
+<head>
+    <title th:text="${isEdit ? 'Edit User' : 'Create User'}">User Form</title>
+</head>
+<body>
+
+<div layout:fragment="page-title">
+    <i class="fas" th:classappend="${isEdit ? 'fa-edit' : 'fa-plus'}"></i>
+    <span th:text="${isEdit ? 'Edit User' : 'Create New User'}">User Form</span>
+</div>
+
+<ol class="breadcrumb float-sm-right" layout:fragment="breadcrumb">
+    <li class="breadcrumb-item"><a th:href="@{/admin/dashboard}">Home</a></li>
+    <li class="breadcrumb-item"><a th:href="@{/admin/users}">Users</a></li>
+    <li class="breadcrumb-item active" th:text="${isEdit ? 'Edit' : 'Create'}">Form</li>
+</ol>
+
+<div layout:fragment="content">
+
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <i class="icon fas fa-ban"></i>
+        <span th:text="${errorMessage}"></span>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-user"></i>
+                <span th:text="${isEdit ? 'Edit User Information' : 'Create New User'}"></span>
+            </h3>
+        </div>
+        <form th:action="${isEdit ? '/admin/users/' + userForm.id + '/edit' : '/admin/users/create'}"
+              th:object="${userForm}" method="post">
+
+            <div class="card-body">
+
+                <!-- Name -->
+                <div class="form-group">
+                    <label for="name" class="required">Full Name</label>
+                    <input type="text" class="form-control" id="name" th:field="*{name}"
+                           th:classappend="${#fields.hasErrors('name')} ? 'is-invalid' : ''"
+                           placeholder="Enter full name">
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">
+                        Name error
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div class="form-group">
+                    <label for="email" class="required">Email</label>
+                    <input type="email" class="form-control" id="email" th:field="*{email}"
+                           th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''"
+                           placeholder="Enter email address">
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">
+                        Email error
+                    </div>
+                </div>
+
+                <!-- Phone -->
+                <div class="form-group">
+                    <label for="phone">Phone</label>
+                    <input type="text" class="form-control" id="phone" th:field="*{phone}"
+                           th:classappend="${#fields.hasErrors('phone')} ? 'is-invalid' : ''"
+                           placeholder="Enter phone number">
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}">
+                        Phone error
+                    </div>
+                </div>
+
+                <!-- Password (Required for create, optional for edit) -->
+                <div class="form-group">
+                    <label for="password" th:classappend="${!isEdit ? 'required' : ''}">Password</label>
+                    <input type="password" class="form-control" id="password" th:field="*{password}"
+                           th:classappend="${#fields.hasErrors('password')} ? 'is-invalid' : ''"
+                           th:placeholder="${isEdit ? 'Leave blank to keep current password' : 'Enter password'}">
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">
+                        Password error
+                    </div>
+                    <small class="form-text text-muted" th:if="${isEdit}">
+                        Leave blank if you don't want to change the password
+                    </small>
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="form-group">
+                    <label for="confirmPassword" th:classappend="${!isEdit ? 'required' : ''}">Confirm Password</label>
+                    <input type="password" class="form-control" id="confirmPassword" th:field="*{confirmPassword}"
+                           th:classappend="${#fields.hasErrors('confirmPassword')} ? 'is-invalid' : ''"
+                           placeholder="Confirm password">
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('confirmPassword')}"
+                         th:errors="*{confirmPassword}">
+                        Confirm password error
+                    </div>
+                </div>
+
+                <!-- Status -->
+                <div class="form-group">
+                    <label for="isActive" class="required">Status</label>
+                    <select class="form-control" id="isActive" th:field="*{isActive}"
+                            th:classappend="${#fields.hasErrors('isActive')} ? 'is-invalid' : ''">
+                        <option value="true">Active</option>
+                        <option value="false">Inactive</option>
+                    </select>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('isActive')}" th:errors="*{isActive}">
+                        Status error
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i>
+                    <span th:text="${isEdit ? 'Update User' : 'Create User'}"></span>
+                </button>
+                <a th:href="@{/admin/users}" class="btn btn-default">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+</body>
+</html>

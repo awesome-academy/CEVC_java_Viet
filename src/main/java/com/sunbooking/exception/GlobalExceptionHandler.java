@@ -91,6 +91,8 @@ public class GlobalExceptionHandler {
 
     /**
      * Handle DuplicateResourceException
+     * For form submissions, return to form with error message
+     * For other requests, show error page
      */
     @ExceptionHandler(DuplicateResourceException.class)
     public ModelAndView handleDuplicateResourceException(
@@ -98,12 +100,48 @@ public class GlobalExceptionHandler {
 
         logger.warn("Duplicate resource: {}", ex.getMessage());
 
+        // If it's a POST request to an edit endpoint, return to the appropriate form
+        // with error
+        if ("POST".equals(request.getMethod()) && request.getRequestURI().contains("/edit")) {
+            // Extract the resource type from the URI (e.g., /admin/users, /admin/tours)
+            String uri = request.getRequestURI();
+            String viewName = determineFormViewFromUri(uri);
+
+            ModelAndView mav = new ModelAndView(viewName);
+            mav.addObject("errorMessage", ex.getMessage());
+            mav.addObject("isEdit", true);
+            mav.setStatus(HttpStatus.CONFLICT);
+            return mav;
+        }
+
+        // Otherwise, show error page
         ModelAndView mav = new ModelAndView("error/400");
         mav.addObject("errorMessage", ex.getMessage());
         mav.addObject("requestUrl", request.getRequestURI());
         mav.setStatus(HttpStatus.CONFLICT);
 
         return mav;
+    }
+
+    /**
+     * Determine the form view name from the request URI
+     * 
+     * @param uri the request URI (e.g., /admin/users/123/edit)
+     * @return the view name (e.g., admin/users/form)
+     */
+    private String determineFormViewFromUri(String uri) {
+        // Extract resource path: /admin/{resource}/{id}/edit -> admin/{resource}/form
+        if (uri.startsWith("/admin/")) {
+            String[] parts = uri.split("/");
+            if (parts.length >= 3) {
+                // parts[0] = "", parts[1] = "admin", parts[2] = "users|tours|categories"
+                String resource = parts[2];
+                return "admin/" + resource + "/form";
+            }
+        }
+
+        // Default fallback
+        return "error/400";
     }
 
     /**
