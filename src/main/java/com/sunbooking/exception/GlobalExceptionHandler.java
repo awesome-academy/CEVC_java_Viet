@@ -1,5 +1,11 @@
 package com.sunbooking.exception;
 
+import static com.sunbooking.constant.ViewConstants.ERROR_400;
+import static com.sunbooking.constant.ViewConstants.ERROR_401;
+import static com.sunbooking.constant.ViewConstants.ERROR_403;
+import static com.sunbooking.constant.ViewConstants.ERROR_404;
+import static com.sunbooking.constant.ViewConstants.ERROR_500;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -30,7 +36,7 @@ public class GlobalExceptionHandler {
 
         logger.warn("Resource not found: {}", ex.getMessage());
 
-        ModelAndView mav = new ModelAndView("error/404");
+        ModelAndView mav = new ModelAndView(ERROR_404);
         mav.addObject("errorMessage", ex.getMessage());
         mav.addObject("requestUrl", request.getRequestURI());
         mav.setStatus(HttpStatus.NOT_FOUND);
@@ -47,7 +53,7 @@ public class GlobalExceptionHandler {
 
         logger.warn("Validation error: {}", ex.getMessage());
 
-        ModelAndView mav = new ModelAndView("error/400");
+        ModelAndView mav = new ModelAndView(ERROR_400);
         mav.addObject("errorMessage", ex.getMessage());
         mav.addObject("requestUrl", request.getRequestURI());
         mav.setStatus(HttpStatus.BAD_REQUEST);
@@ -64,7 +70,7 @@ public class GlobalExceptionHandler {
 
         logger.warn("Unauthorized access: {}", ex.getMessage());
 
-        ModelAndView mav = new ModelAndView("error/401");
+        ModelAndView mav = new ModelAndView(ERROR_401);
         mav.addObject("errorMessage", ex.getMessage());
         mav.addObject("requestUrl", request.getRequestURI());
         mav.setStatus(HttpStatus.UNAUTHORIZED);
@@ -81,7 +87,7 @@ public class GlobalExceptionHandler {
 
         logger.warn("Business logic error: {}", ex.getMessage());
 
-        ModelAndView mav = new ModelAndView("error/400");
+        ModelAndView mav = new ModelAndView(ERROR_400);
         mav.addObject("errorMessage", ex.getMessage());
         mav.addObject("requestUrl", request.getRequestURI());
         mav.setStatus(HttpStatus.BAD_REQUEST);
@@ -115,10 +121,29 @@ public class GlobalExceptionHandler {
         }
 
         // Otherwise, show error page
-        ModelAndView mav = new ModelAndView("error/400");
+        ModelAndView mav = new ModelAndView(ERROR_400);
         mav.addObject("errorMessage", ex.getMessage());
         mav.addObject("requestUrl", request.getRequestURI());
         mav.setStatus(HttpStatus.CONFLICT);
+
+        return mav;
+    }
+
+    /**
+     * Handle IllegalStateException
+     * Used for business rule violations (e.g., cannot delete own account, last
+     * admin)
+     */
+    @ExceptionHandler(IllegalStateException.class)
+    public ModelAndView handleIllegalStateException(
+            IllegalStateException ex, HttpServletRequest request) {
+
+        logger.warn("Illegal state: {}", ex.getMessage());
+
+        ModelAndView mav = new ModelAndView(ERROR_400);
+        mav.addObject("errorMessage", ex.getMessage());
+        mav.addObject("requestUrl", request.getRequestURI());
+        mav.setStatus(HttpStatus.BAD_REQUEST);
 
         return mav;
     }
@@ -141,7 +166,7 @@ public class GlobalExceptionHandler {
         }
 
         // Default fallback
-        return "error/400";
+        return ERROR_400;
     }
 
     /**
@@ -153,7 +178,7 @@ public class GlobalExceptionHandler {
 
         logger.warn("Access denied: {}", ex.getMessage());
 
-        ModelAndView mav = new ModelAndView("error/403");
+        ModelAndView mav = new ModelAndView(ERROR_403);
         mav.addObject("errorMessage", "You don't have permission to access this resource");
         mav.addObject("requestUrl", request.getRequestURI());
         mav.setStatus(HttpStatus.FORBIDDEN);
@@ -170,7 +195,7 @@ public class GlobalExceptionHandler {
 
         logger.warn("No handler found for: {} {}", ex.getHttpMethod(), ex.getRequestURL());
 
-        ModelAndView mav = new ModelAndView("error/404");
+        ModelAndView mav = new ModelAndView(ERROR_404);
         mav.addObject("errorMessage", "The requested page does not exist");
         mav.addObject("requestUrl", request.getRequestURI());
         mav.setStatus(HttpStatus.NOT_FOUND);
@@ -187,7 +212,7 @@ public class GlobalExceptionHandler {
 
         logger.error("Unexpected error occurred: ", ex);
 
-        ModelAndView mav = new ModelAndView("error/500");
+        ModelAndView mav = new ModelAndView(ERROR_500);
         mav.addObject("errorMessage", "An unexpected error occurred. Please try again later.");
         mav.addObject("requestUrl", request.getRequestURI());
         mav.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);

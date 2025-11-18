@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{admin/layout/main}">
+<head>
+    <title>Admin Details</title>
+</head>
+<body>
+
+<!-- Page Title -->
+<div layout:fragment="page-title">
+    <i class="fas fa-user-shield"></i> Admin Details
+</div>
+
+<!-- Breadcrumb -->
+<ol class="breadcrumb float-sm-right" layout:fragment="breadcrumb">
+    <li class="breadcrumb-item"><a th:href="@{/admin/dashboard}">Home</a></li>
+    <li class="breadcrumb-item"><a th:href="@{/admin/admins}">Admins</a></li>
+    <li class="breadcrumb-item active">Details</li>
+</ol>
+
+<!-- Main Content -->
+<div layout:fragment="content">
+
+    <!-- Success Message -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <i class="icon fas fa-check"></i>
+        <span th:text="${successMessage}"></span>
+    </div>
+
+    <div class="row">
+        <!-- Left Column - Profile Card -->
+        <div class="col-md-4">
+            <div class="card card-primary card-outline">
+                <div class="card-body box-profile">
+                    <div class="text-center">
+                        <i class="fas fa-user-shield fa-5x text-primary"></i>
+                    </div>
+
+                    <h3 class="profile-username text-center" th:text="${admin.name}">Admin Name</h3>
+                    <p class="text-muted text-center" th:text="${admin.email}">admin@example.com</p>
+
+                    <ul class="list-group list-group-unbordered mb-3">
+                        <li class="list-group-item">
+                            <b>Status</b>
+                            <span class="float-right">
+                                <span th:if="${!admin.deleted}" 
+                                      class="badge" 
+                                      th:classappend="${admin.isActive ? 'badge-success' : 'badge-danger'}"
+                                      th:text="${admin.isActive ? 'Active' : 'Inactive'}">Active</span>
+                                <span th:if="${admin.deleted}" class="badge badge-dark">Deleted</span>
+                            </span>
+                        </li>
+                    </ul>
+
+                    <!-- Action Buttons -->
+                    <a th:href="@{/admin/admins/{id}/edit(id=${admin.id})}" class="btn btn-primary btn-block">
+                        <i class="fas fa-edit"></i> Edit Admin
+                    </a>
+
+                    <!-- Deactivate Button (only if active and not deleted) -->
+                    <form th:if="${admin.isActive && !admin.deleted}" 
+                          th:action="@{/admin/admins/{id}/delete(id=${admin.id})}" 
+                          method="post"
+                          onsubmit="return confirm('Are you sure you want to deactivate this admin account? This action will prevent them from logging in.');">
+                        <button type="submit" class="btn btn-danger btn-block">
+                            <i class="fas fa-ban"></i> Deactivate Admin
+                        </button>
+                    </form>
+
+                    <!-- Activate Button (only if inactive or deleted) -->
+                    <form th:if="${!admin.isActive || admin.deleted}" 
+                          th:action="@{/admin/admins/{id}/activate(id=${admin.id})}" 
+                          method="post">
+                        <button type="submit" class="btn btn-success btn-block">
+                            <i class="fas fa-check"></i> Activate Admin
+                        </button>
+                    </form>
+
+                    <a th:href="@{/admin/admins}" class="btn btn-default btn-block">
+                        <i class="fas fa-arrow-left"></i> Back to List
+                    </a>
+                </div>
+            </div>
+
+            <!-- Security Notice Card -->
+            <div class="card card-warning">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-exclamation-triangle"></i> Security Notice</h3>
+                </div>
+                <div class="card-body">
+                    <p class="text-sm">
+                        <i class="fas fa-info-circle"></i> You cannot delete or deactivate your own admin account.
+                    </p>
+                    <p class="text-sm">
+                        <i class="fas fa-shield-alt"></i> The last active admin account cannot be deactivated or deleted.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Information Card -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-info-circle"></i> Admin Information</h3>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-3">Admin ID</dt>
+                        <dd class="col-sm-9" th:text="${admin.id}">1</dd>
+
+                        <dt class="col-sm-3">Full Name</dt>
+                        <dd class="col-sm-9" th:text="${admin.name}">Admin Name</dd>
+
+                        <dt class="col-sm-3">Email</dt>
+                        <dd class="col-sm-9" th:text="${admin.email}">admin@example.com</dd>
+
+                        <dt class="col-sm-3">Phone</dt>
+                        <dd class="col-sm-9" th:text="${admin.phone ?: 'Not provided'}">Not provided</dd>
+
+                        <dt class="col-sm-3">Role</dt>
+                        <dd class="col-sm-9">
+                            <span class="badge badge-primary">ADMIN</span>
+                        </dd>
+
+                        <dt class="col-sm-3">Status</dt>
+                        <dd class="col-sm-9">
+                            <span th:if="${!admin.deleted}" 
+                                  class="badge" 
+                                  th:classappend="${admin.isActive ? 'badge-success' : 'badge-danger'}"
+                                  th:text="${admin.isActive ? 'Active' : 'Inactive'}">Active</span>
+                            <span th:if="${admin.deleted}" class="badge badge-dark">Deleted</span>
+                        </dd>
+
+                        <dt class="col-sm-3">Created At</dt>
+                        <dd class="col-sm-9" th:text="${#temporals.format(admin.createdAt, 'yyyy-MM-dd HH:mm:ss')}">2024-01-01 10:00:00</dd>
+
+                        <dt class="col-sm-3">Updated At</dt>
+                        <dd class="col-sm-9" 
+                            th:text="${admin.updatedAt != null ? #temporals.format(admin.updatedAt, 'yyyy-MM-dd HH:mm:ss') : 'Never updated'}">
+                            Never updated
+                        </dd>
+
+                        <dt class="col-sm-3" th:if="${admin.deleted}">Deleted At</dt>
+                        <dd class="col-sm-9" th:if="${admin.deleted}"
+                            th:text="${#temporals.format(admin.deletedAt, 'yyyy-MM-dd HH:mm:ss')}">
+                            2024-01-01 10:00:00
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Activity Log Card (Placeholder) -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-history"></i> Recent Activity</h3>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <div class="time-label">
+                            <span class="bg-primary" th:text="${#temporals.format(admin.createdAt, 'yyyy-MM-dd')}">2024-01-01</span>
+                        </div>
+                        <div>
+                            <i class="fas fa-user-plus bg-success"></i>
+                            <div class="timeline-item">
+                                <span class="time">
+                                    <i class="fas fa-clock"></i> 
+                                    <span th:text="${#temporals.format(admin.createdAt, 'HH:mm')}">10:00</span>
+                                </span>
+                                <h3 class="timeline-header">Admin Account Created</h3>
+                                <div class="timeline-body">
+                                    This admin account was created in the system.
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <i class="fas fa-clock bg-gray"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
