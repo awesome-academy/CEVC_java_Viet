@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{admin/layout/main}">
+<head>
+    <title th:text="${categoryForm.id != null ? 'Edit Category' : 'Create Category'}">Category Form</title>
+</head>
+<body>
+
+<div layout:fragment="page-title">
+    <i class="fas fa-tags"></i>
+    <span th:text="${categoryForm.id != null ? 'Edit Category' : 'Create Category'}">Category Form</span>
+</div>
+
+<ol class="breadcrumb float-sm-right" layout:fragment="breadcrumb">
+    <li class="breadcrumb-item"><a th:href="@{/admin/dashboard}">Home</a></li>
+    <li class="breadcrumb-item"><a th:href="@{/admin/categories}">Categories</a></li>
+    <li class="breadcrumb-item active" th:text="${categoryForm.id != null ? 'Edit' : 'Create'}">Form</li>
+</ol>
+
+<div layout:fragment="content">
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-edit"></i>
+                        <span th:text="${categoryForm.id != null ? 'Edit Category' : 'Create New Category'}">Category Form</span>
+                    </h3>
+                </div>
+
+                <form th:action="${categoryForm.id != null ? '/admin/categories/' + categoryForm.id + '/edit' : '/admin/categories/create'}" 
+                      th:object="${categoryForm}" 
+                      method="post">
+                    
+                    <div class="card-body">
+
+                        <div class="form-group">
+                            <label for="name">Category Name <span class="text-danger">*</span></label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="name" 
+                                   th:field="*{name}"
+                                   th:classappend="${#fields.hasErrors('name')} ? 'is-invalid' : ''"
+                                   placeholder="Enter category name">
+                            <span th:if="${#fields.hasErrors('name')}" 
+                                  th:errors="*{name}" 
+                                  class="invalid-feedback"></span>
+                            <small class="form-text text-muted">
+                                Enter a unique name for this category (max 255 characters)
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="type">Category Type <span class="text-danger">*</span></label>
+                            <select class="form-control" 
+                                    id="type" 
+                                    th:field="*{type}"
+                                    th:classappend="${#fields.hasErrors('type')} ? 'is-invalid' : ''">
+                                <option value="">-- Select Type --</option>
+                                <option th:each="categoryType : ${categoryTypes}"
+                                        th:value="${categoryType}"
+                                        th:text="${categoryType.name()}">
+                                </option>
+                            </select>
+                            <span th:if="${#fields.hasErrors('type')}" 
+                                  th:errors="*{type}" 
+                                  class="invalid-feedback"></span>
+                            <small class="form-text text-muted">
+                                <strong>TOUR:</strong> For tour packages | 
+                                <strong>NEWS:</strong> For articles/blogs | 
+                                <strong>FOOD:</strong> For cuisines | 
+                                <strong>PLACE:</strong> For destinations
+                            </small>
+                        </div>
+
+                    </div>
+
+                    <div class="card-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            <span th:text="${categoryForm.id != null ? 'Update Category' : 'Create Category'}">Submit</span>
+                        </button>
+                        <a th:href="@{/admin/categories}" class="btn btn-default">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card card-info">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-info-circle"></i> Guidelines
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <h6 class="text-bold">Category Naming:</h6>
+                    <ul class="pl-3">
+                        <li>Use clear, descriptive names</li>
+                        <li>Keep names concise (under 255 chars)</li>
+                        <li>Avoid special characters</li>
+                    </ul>
+
+                    <h6 class="text-bold mt-3">Uniqueness Rule:</h6>
+                    <ul class="pl-3">
+                        <li>Each combination of <strong>Name + Type</strong> must be unique</li>
+                        <li>Example: "Beach" can exist as both TOUR and PLACE types</li>
+                    </ul>
+
+                    <h6 class="text-bold mt-3">Category Types:</h6>
+                    <ul class="pl-3">
+                        <li><span class="badge badge-primary">TOUR</span> Tour packages and destinations</li>
+                        <li><span class="badge badge-info">NEWS</span> Articles, blogs, travel tips</li>
+                        <li><span class="badge badge-warning">FOOD</span> Cuisines and food experiences</li>
+                        <li><span class="badge badge-success">PLACE</span> Locations and landmarks</li>
+                    </ul>
+
+                    <h6 class="text-bold mt-3">Deletion Rules:</h6>
+                    <ul class="pl-3">
+                        <li>Cannot delete categories with active reviews</li>
+                        <li>Use soft-delete to preserve data integrity</li>
+                        <li>Deleted categories can be restored</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
