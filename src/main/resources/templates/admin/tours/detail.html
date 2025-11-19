@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{admin/layout/main}">
+<head>
+    <title>Tour Details</title>
+</head>
+<body>
+
+<div layout:fragment="page-title">
+    <i class="fas fa-suitcase"></i> Tour Details
+</div>
+
+<ol class="breadcrumb float-sm-right" layout:fragment="breadcrumb">
+    <li class="breadcrumb-item"><a th:href="@{/admin/dashboard}">Home</a></li>
+    <li class="breadcrumb-item"><a th:href="@{/admin/tours}">Tours</a></li>
+    <li class="breadcrumb-item active">Details</li>
+</ol>
+
+<div layout:fragment="content">
+
+    <!-- Success/Error Messages -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <i class="icon fas fa-check"></i> <span th:text="${successMessage}"></span>
+    </div>
+
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <i class="icon fas fa-ban"></i> <span th:text="${errorMessage}"></span>
+    </div>
+
+    <div class="row">
+        <!-- Tour Information -->
+        <div class="col-md-8">
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-info-circle"></i> Tour Information
+                    </h3>
+                    <div class="card-tools">
+                        <span class="badge" 
+                              th:classappend="${tour.isActive ? 'badge-success' : 'badge-secondary'}"
+                              th:text="${tour.isActive ? 'Active' : 'Inactive'}"></span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-3">ID:</dt>
+                        <dd class="col-sm-9" th:text="${tour.id}"></dd>
+
+                        <dt class="col-sm-3">Title:</dt>
+                        <dd class="col-sm-9" th:text="${tour.title}"></dd>
+
+                        <dt class="col-sm-3">Description:</dt>
+                        <dd class="col-sm-9" th:text="${tour.description}"></dd>
+
+                        <dt class="col-sm-3">Price:</dt>
+                        <dd class="col-sm-9">
+                            <strong class="text-success" th:text="${#numbers.formatCurrency(tour.price)}"></strong>
+                        </dd>
+
+                        <dt class="col-sm-3">Duration:</dt>
+                        <dd class="col-sm-9">
+                            <span th:if="${tour.duration != null}" th:text="${tour.duration + ' days'}"></span>
+                            <span th:unless="${tour.duration != null}" class="text-muted">Not specified</span>
+                        </dd>
+
+                        <dt class="col-sm-3">Max Participants:</dt>
+                        <dd class="col-sm-9">
+                            <span th:if="${tour.maxParticipants != null}" th:text="${tour.maxParticipants}"></span>
+                            <span th:unless="${tour.maxParticipants != null}" class="text-muted">Not specified</span>
+                        </dd>
+
+                        <dt class="col-sm-3">Location:</dt>
+                        <dd class="col-sm-9">
+                            <span th:if="${tour.location != null}" th:text="${tour.location}"></span>
+                            <span th:unless="${tour.location != null}" class="text-muted">Not specified</span>
+                        </dd>
+
+                        <dt class="col-sm-3">Created At:</dt>
+                        <dd class="col-sm-9" th:text="${#temporals.format(tour.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></dd>
+
+                        <dt class="col-sm-3">Updated At:</dt>
+                        <dd class="col-sm-9" th:text="${#temporals.format(tour.updatedAt, 'yyyy-MM-dd HH:mm:ss')}"></dd>
+
+                        <dt class="col-sm-3" th:if="${tour.deletedAt != null}">Deleted At:</dt>
+                        <dd class="col-sm-9" th:if="${tour.deletedAt != null}">
+                            <span class="text-danger" th:text="${#temporals.format(tour.deletedAt, 'yyyy-MM-dd HH:mm:ss')}"></span>
+                        </dd>
+                    </dl>
+                </div>
+                <div class="card-footer">
+                    <span th:if="${tour.isActive}">
+                        <a th:href="@{/admin/tours/{id}/edit(id=${tour.id})}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> Edit Tour
+                        </a>
+                        <form th:action="@{/admin/tours/{id}/delete(id=${tour.id})}" 
+                              method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-danger"
+                                    onclick="return confirm('Are you sure you want to deactivate this tour?')">
+                                <i class="fas fa-ban"></i> Deactivate
+                            </button>
+                        </form>
+                    </span>
+                    
+                    <form th:unless="${tour.isActive}"
+                          th:action="@{/admin/tours/{id}/activate(id=${tour.id})}" 
+                          method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check"></i> Activate
+                        </button>
+                    </form>
+                    
+                    <a th:href="@{/admin/tours}" class="btn btn-default">
+                        <i class="fas fa-arrow-left"></i> Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="col-md-4">
+            <!-- Summary Statistics -->
+            <div class="card card-success">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-chart-bar"></i> Statistics
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="info-box bg-light">
+                        <span class="info-box-icon bg-info">
+                            <i class="fas fa-calendar-check"></i>
+                        </span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Total Bookings</span>
+                            <span class="info-box-number" th:text="${statistics.bookingCount}">0</span>
+                        </div>
+                    </div>
+
+                    <div class="info-box bg-light">
+                        <span class="info-box-icon bg-success">
+                            <i class="fas fa-dollar-sign"></i>
+                        </span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Total Revenue</span>
+                            <span class="info-box-number" th:text="${#numbers.formatCurrency(statistics.revenue)}">$0</span>
+                        </div>
+                    </div>
+
+                    <div class="info-box bg-light">
+                        <span class="info-box-icon bg-warning">
+                            <i class="fas fa-star"></i>
+                        </span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Average Rating</span>
+                            <span class="info-box-number">
+                                <span th:if="${statistics.averageRating > 0}" 
+                                      th:text="${#numbers.formatDecimal(statistics.averageRating, 1, 1)} + ' / 5.0'"></span>
+                                <span th:unless="${statistics.averageRating > 0}" class="text-muted">No ratings yet</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="info-box bg-light">
+                        <span class="info-box-icon bg-primary">
+                            <i class="fas fa-comments"></i>
+                        </span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Reviews</span>
+                            <span class="info-box-number" th:text="${statistics.reviewCount}">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="card card-info">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-link"></i> Quick Links
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <a href="#" class="btn btn-block btn-outline-primary disabled">
+                        <i class="fas fa-calendar-check"></i> View Bookings
+                    </a>
+                    <a href="#" class="btn btn-block btn-outline-primary disabled">
+                        <i class="fas fa-comments"></i> View Reviews
+                    </a>
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle"></i> These features will be available in future updates
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

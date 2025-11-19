@@ -58,6 +58,16 @@ public class Tour {
     @Column(name = "price", nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
+    @Column(name = "duration", nullable = true)
+    private Integer duration; // in days
+
+    @Column(name = "max_participants", nullable = true)
+    private Integer maxParticipants;
+
+    @Size(max = 255, message = "{validation.tour.location.size}")
+    @Column(name = "location", nullable = true, length = 255)
+    private String location;
+
     @NotNull
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
