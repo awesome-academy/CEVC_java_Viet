@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{admin/layout/main}">
+<head>
+    <title>Category Management</title>
+</head>
+<body>
+
+<div layout:fragment="page-title">
+    <i class="fas fa-tags"></i> Category Management
+</div>
+
+<ol class="breadcrumb float-sm-right" layout:fragment="breadcrumb">
+    <li class="breadcrumb-item"><a th:href="@{/admin/dashboard}">Home</a></li>
+    <li class="breadcrumb-item active">Categories</li>
+</ol>
+
+<div layout:fragment="content">
+
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <i class="icon fas fa-check"></i>
+        <span th:text="${successMessage}"></span>
+    </div>
+
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <i class="icon fas fa-ban"></i>
+        <span th:text="${errorMessage}"></span>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-2 col-6">
+            <div class="small-box bg-info">
+                <div class="inner">
+                    <h3 th:text="${statistics.totalCategories}">0</h3>
+                    <p>Total</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-tags"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-6">
+            <div class="small-box bg-primary">
+                <div class="inner">
+                    <h3 th:text="${statistics.tourCategories}">0</h3>
+                    <p>Tour</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-suitcase"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-6">
+            <div class="small-box bg-info">
+                <div class="inner">
+                    <h3 th:text="${statistics.newsCategories}">0</h3>
+                    <p>News</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-newspaper"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-warning">
+                <div class="inner">
+                    <h3 th:text="${statistics.foodCategories}">0</h3>
+                    <p>Food</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-utensils"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-success">
+                <div class="inner">
+                    <h3 th:text="${statistics.placeCategories}">0</h3>
+                    <p>Place</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title"><i class="fas fa-search"></i> Search & Filter</h3>
+            <div class="card-tools">
+                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                    <i class="fas fa-minus"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/admin/categories}" method="get">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="keyword">Search Keyword</label>
+                            <input type="text" class="form-control" id="keyword" name="keyword"
+                                   th:value="${keyword}" placeholder="Category name...">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="type">Category Type</label>
+                            <select class="form-control" id="type" name="type">
+                                <option value="">All Types</option>
+                                <option th:each="categoryType : ${categoryTypes}"
+                                        th:value="${categoryType}"
+                                        th:text="${categoryType.name()}"
+                                        th:selected="${categoryType == selectedType}">
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="showDeleted">Show Deleted</label>
+                            <select class="form-control" id="showDeleted" name="showDeleted">
+                                <option value="false" th:selected="${!showDeleted}">Active Only</option>
+                                <option value="true" th:selected="${showDeleted}">Deleted Only</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <button type="submit" class="btn btn-primary btn-block">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title"><i class="fas fa-list"></i> Categories List</h3>
+            <div class="card-tools">
+                <a th:href="@{/admin/categories/create}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus"></i> Add New Category
+                </a>
+            </div>
+        </div>
+        <div class="card-body table-responsive p-0">
+            <table class="table table-hover text-nowrap">
+                <thead>
+                    <tr>
+                        <th>
+                            <a th:href="@{/admin/categories(keyword=${keyword}, type=${selectedType}, showDeleted=${showDeleted}, page=${currentPage}, size=${pageSize}, sortBy='id', sortDir=${sortBy == 'id' ? reverseSortDir : 'ASC'})}">
+                                ID
+                                <i th:if="${sortBy == 'id'}" 
+                                   th:class="${sortDir == 'ASC' ? 'fas fa-sort-up' : 'fas fa-sort-down'}"></i>
+                            </a>
+                        </th>
+                        <th>
+                            <a th:href="@{/admin/categories(keyword=${keyword}, type=${selectedType}, showDeleted=${showDeleted}, page=${currentPage}, size=${pageSize}, sortBy='name', sortDir=${sortBy == 'name' ? reverseSortDir : 'ASC'})}">
+                                Name
+                                <i th:if="${sortBy == 'name'}" 
+                                   th:class="${sortDir == 'ASC' ? 'fas fa-sort-up' : 'fas fa-sort-down'}"></i>
+                            </a>
+                        </th>
+                        <th>
+                            <a th:href="@{/admin/categories(keyword=${keyword}, type=${selectedType}, showDeleted=${showDeleted}, page=${currentPage}, size=${pageSize}, sortBy='type', sortDir=${sortBy == 'type' ? reverseSortDir : 'ASC'})}">
+                                Type
+                                <i th:if="${sortBy == 'type'}" 
+                                   th:class="${sortDir == 'ASC' ? 'fas fa-sort-up' : 'fas fa-sort-down'}"></i>
+                            </a>
+                        </th>
+                        <th>
+                            <a th:href="@{/admin/categories(keyword=${keyword}, type=${selectedType}, showDeleted=${showDeleted}, page=${currentPage}, size=${pageSize}, sortBy='createdAt', sortDir=${sortBy == 'createdAt' ? reverseSortDir : 'DESC'})}">
+                                Created At
+                                <i th:if="${sortBy == 'createdAt'}" 
+                                   th:class="${sortDir == 'ASC' ? 'fas fa-sort-up' : 'fas fa-sort-down'}"></i>
+                            </a>
+                        </th>
+                        <th>Status</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${#lists.isEmpty(categories)}">
+                        <td colspan="6" class="text-center">No categories found</td>
+                    </tr>
+                    <tr th:each="category : ${categories}">
+                        <td th:text="${category.id}">1</td>
+                        <td th:text="${category.name}">Category Name</td>
+                        <td>
+                            <span class="badge" 
+                                  th:classappend="${category.type == T(com.sunbooking.entity.CategoryType).TOUR ? 'badge-primary' : 
+                                                   category.type == T(com.sunbooking.entity.CategoryType).NEWS ? 'badge-info' : 
+                                                   category.type == T(com.sunbooking.entity.CategoryType).FOOD ? 'badge-warning' : 
+                                                   category.type == T(com.sunbooking.entity.CategoryType).PLACE ? 'badge-success' : 'badge-secondary'}"
+                                  th:text="${category.type?.name() ?: ''}">Type</span>
+                        </td>
+                        <td th:text="${#temporals.format(category.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</td>
+                        <td>
+                            <span class="badge" 
+                                  th:classappend="${category.deleted ? 'badge-danger' : 'badge-success'}"
+                                  th:text="${category.deleted ? 'Deleted' : 'Active'}">Active</span>
+                        </td>
+                        <td class="text-center">
+                            <a th:href="@{/admin/categories/{id}/edit(id=${category.id})}" 
+                               class="btn btn-info btn-sm"
+                               title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </a>
+
+                            <form th:if="${!category.deleted}" 
+                                  th:action="@{/admin/categories/{id}/delete(id=${category.id})}" 
+                                  method="post" 
+                                  style="display: inline;"
+                                  onsubmit="return confirm('Are you sure you want to delete this category?');">
+                                <button type="submit" class="btn btn-danger btn-sm" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+
+                            <form th:if="${category.deleted}" 
+                                  th:action="@{/admin/categories/{id}/activate(id=${category.id})}" 
+                                  method="post" 
+                                  style="display: inline;"
+                                  onsubmit="return confirm('Are you sure you want to restore this category?');">
+                                <button type="submit" class="btn btn-success btn-sm" title="Restore">
+                                    <i class="fas fa-undo"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer clearfix">
+            <div class="float-left">
+                <span>Showing <b th:text="${#lists.size(categories)}">0</b> of <b th:text="${totalItems}">0</b> entries</span>
+            </div>
+            <ul class="pagination pagination-sm m-0 float-right">
+                <li class="page-item" th:classappend="${currentPage == 0 ? 'disabled' : ''}">
+                    <a class="page-link" 
+                       th:href="@{/admin/categories(keyword=${keyword}, type=${selectedType}, showDeleted=${showDeleted}, page=${currentPage - 1}, size=${pageSize}, sortBy=${sortBy}, sortDir=${sortDir})}"
+                       th:if="${currentPage > 0}">«</a>
+                    <span class="page-link" th:if="${currentPage == 0}">«</span>
+                </li>
+
+                <li class="page-item" 
+                    th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                    th:if="${i >= currentPage - 2 && i <= currentPage + 2}"
+                    th:classappend="${i == currentPage ? 'active' : ''}">
+                    <a class="page-link" 
+                       th:href="@{/admin/categories(keyword=${keyword}, type=${selectedType}, showDeleted=${showDeleted}, page=${i}, size=${pageSize}, sortBy=${sortBy}, sortDir=${sortDir})}"
+                       th:text="${i + 1}">1</a>
+                </li>
+
+                <li class="page-item" th:classappend="${currentPage >= totalPages - 1 ? 'disabled' : ''}">
+                    <a class="page-link" 
+                       th:href="@{/admin/categories(keyword=${keyword}, type=${selectedType}, showDeleted=${showDeleted}, page=${currentPage + 1}, size=${pageSize}, sortBy=${sortBy}, sortDir=${sortDir})}"
+                       th:if="${currentPage < totalPages - 1}">»</a>
+                    <span class="page-link" th:if="${currentPage >= totalPages - 1}">»</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
