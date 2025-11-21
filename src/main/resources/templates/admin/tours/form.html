@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{admin/layout/main}">
+<head>
+    <title th:text="${tourId != null ? 'Edit Tour' : 'Create Tour'}">Tour Form</title>
+</head>
+<body>
+
+<div layout:fragment="page-title">
+    <i class="fas fa-suitcase"></i>
+    <span th:text="${tourId != null ? 'Edit Tour' : 'Create Tour'}">Tour Form</span>
+</div>
+
+<ol class="breadcrumb float-sm-right" layout:fragment="breadcrumb">
+    <li class="breadcrumb-item"><a th:href="@{/admin/dashboard}">Home</a></li>
+    <li class="breadcrumb-item"><a th:href="@{/admin/tours}">Tours</a></li>
+    <li class="breadcrumb-item active" th:text="${tourId != null ? 'Edit' : 'Create'}">Form</li>
+</ol>
+
+<div layout:fragment="content">
+
+    <div class="row">
+        <div class="col-md-9">
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-edit"></i>
+                        <span th:text="${tourId != null ? 'Edit Tour' : 'Create New Tour'}">Tour Form</span>
+                    </h3>
+                </div>
+
+                <form th:action="${tourId != null ? '/admin/tours/' + tourId + '/edit' : '/admin/tours/create'}" 
+                      th:object="${tourForm}" 
+                      method="post">
+                    
+                    <div class="card-body">
+                        
+                        <!-- Error Messages -->
+                        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible">
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            <span th:text="${errorMessage}"></span>
+                        </div>
+
+                        <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
+                            <ul>
+                                <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+                            </ul>
+                        </div>
+
+                        <!-- Title -->
+                        <div class="form-group">
+                            <label for="title">Title <span class="text-danger">*</span></label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="title" 
+                                   th:field="*{title}"
+                                   th:classappend="${#fields.hasErrors('title')} ? 'is-invalid' : ''"
+                                   placeholder="Enter tour title">
+                            <span th:if="${#fields.hasErrors('title')}" 
+                                  th:errors="*{title}" 
+                                  class="invalid-feedback"></span>
+                            <small class="form-text text-muted">
+                                Enter a descriptive title for the tour (2-255 characters)
+                            </small>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="form-group">
+                            <label for="description">Description <span class="text-danger">*</span></label>
+                            <textarea class="form-control" 
+                                      id="description" 
+                                      th:field="*{description}"
+                                      th:classappend="${#fields.hasErrors('description')} ? 'is-invalid' : ''"
+                                      rows="5"
+                                      placeholder="Enter tour description"></textarea>
+                            <span th:if="${#fields.hasErrors('description')}" 
+                                  th:errors="*{description}" 
+                                  class="invalid-feedback"></span>
+                            <small class="form-text text-muted">
+                                Provide a detailed description (minimum 10 characters)
+                            </small>
+                        </div>
+
+                        <div class="row">
+                            <!-- Price -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="price">Price <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">$</span>
+                                        </div>
+                                        <input type="number" 
+                                               class="form-control" 
+                                               id="price" 
+                                               th:field="*{price}"
+                                               th:classappend="${#fields.hasErrors('price')} ? 'is-invalid' : ''"
+                                               step="0.01"
+                                               min="0"
+                                               placeholder="0.00">
+                                    </div>
+                                    <span th:if="${#fields.hasErrors('price')}" 
+                                          th:errors="*{price}" 
+                                          class="text-danger small"></span>
+                                    <small class="form-text text-muted">
+                                        Tour price (must be ≥ 0, max 2 decimal places)
+                                    </small>
+                                </div>
+                            </div>
+
+                            <!-- Duration -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="duration">Duration (days)</label>
+                                    <input type="number" 
+                                           class="form-control" 
+                                           id="duration" 
+                                           th:field="*{duration}"
+                                           th:classappend="${#fields.hasErrors('duration')} ? 'is-invalid' : ''"
+                                           min="1"
+                                           placeholder="e.g., 3">
+                                    <span th:if="${#fields.hasErrors('duration')}" 
+                                          th:errors="*{duration}" 
+                                          class="invalid-feedback"></span>
+                                    <small class="form-text text-muted">
+                                        Duration in days (optional, must be ≥ 1 if provided)
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- Max Participants -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="maxParticipants">Max Participants</label>
+                                    <input type="number" 
+                                           class="form-control" 
+                                           id="maxParticipants" 
+                                           th:field="*{maxParticipants}"
+                                           th:classappend="${#fields.hasErrors('maxParticipants')} ? 'is-invalid' : ''"
+                                           min="1"
+                                           placeholder="e.g., 20">
+                                    <span th:if="${#fields.hasErrors('maxParticipants')}" 
+                                          th:errors="*{maxParticipants}" 
+                                          class="invalid-feedback"></span>
+                                    <small class="form-text text-muted">
+                                        Maximum number of participants (optional, must be ≥ 1 if provided)
+                                    </small>
+                                </div>
+                            </div>
+
+                            <!-- Location -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="location">Location</label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="location" 
+                                           th:field="*{location}"
+                                           th:classappend="${#fields.hasErrors('location')} ? 'is-invalid' : ''"
+                                           placeholder="e.g., Paris, France">
+                                    <span th:if="${#fields.hasErrors('location')}" 
+                                          th:errors="*{location}" 
+                                          class="invalid-feedback"></span>
+                                    <small class="form-text text-muted">
+                                        Tour location (optional, max 255 characters)
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="card-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            <span th:text="${tourId != null ? 'Update Tour' : 'Create Tour'}">Submit</span>
+                        </button>
+                        <a th:href="@{/admin/tours}" class="btn btn-default">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Guidelines -->
+        <div class="col-md-3">
+            <div class="card card-info">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-info-circle"></i> Guidelines
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <h6 class="text-bold">Required Fields:</h6>
+                    <ul class="pl-3 small">
+                        <li>Title (2-255 characters)</li>
+                        <li>Description (min 10 characters)</li>
+                        <li>Price (≥ 0)</li>
+                    </ul>
+
+                    <h6 class="text-bold mt-3">Optional Fields:</h6>
+                    <ul class="pl-3 small">
+                        <li>Duration in days</li>
+                        <li>Max participants</li>
+                        <li>Location</li>
+                    </ul>
+
+                    <h6 class="text-bold mt-3">Tips:</h6>
+                    <ul class="pl-3 small">
+                        <li>Use clear, descriptive titles</li>
+                        <li>Provide detailed descriptions</li>
+                        <li>Set realistic prices</li>
+                        <li>Specify duration if known</li>
+                        <li>Include location for better search results</li>
+                    </ul>
+
+                    <h6 class="text-bold mt-3">Note:</h6>
+                    <p class="small">
+                        Tours with <strong>active bookings</strong> (PENDING or CONFIRMED) 
+                        cannot be deactivated. Complete or cancel all active bookings first.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
