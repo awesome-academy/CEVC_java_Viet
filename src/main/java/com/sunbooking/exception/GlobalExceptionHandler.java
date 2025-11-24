@@ -62,6 +62,24 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handle DataIntegrityException
+     * Used when required entity relationships are missing
+     */
+    @ExceptionHandler(DataIntegrityException.class)
+    public ModelAndView handleDataIntegrityException(
+            DataIntegrityException ex, HttpServletRequest request) {
+
+        logger.error("Data integrity violation: {}", ex.getMessage());
+
+        ModelAndView mav = new ModelAndView(ERROR_500);
+        mav.addObject("errorMessage", ex.getMessage());
+        mav.addObject("requestUrl", request.getRequestURI());
+        mav.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+
+        return mav;
+    }
+
+    /**
      * Handle UnauthorizedException
      */
     @ExceptionHandler(UnauthorizedException.class)

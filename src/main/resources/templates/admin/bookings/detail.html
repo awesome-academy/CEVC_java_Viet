@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{admin/layout/main}">
+<head>
+    <title>Booking Details</title>
+</head>
+<body>
+
+<div layout:fragment="page-title">
+    <i class="fas fa-calendar-check"></i> Booking Details
+</div>
+
+<ol class="breadcrumb float-sm-right" layout:fragment="breadcrumb">
+    <li class="breadcrumb-item"><a th:href="@{/admin/dashboard}">Home</a></li>
+    <li class="breadcrumb-item"><a th:href="@{/admin/bookings}">Bookings</a></li>
+    <li class="breadcrumb-item active">Details</li>
+</ol>
+
+<div layout:fragment="content">
+
+    <!-- Success/Error Messages -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <i class="icon fas fa-check"></i> <span th:text="${successMessage}"></span>
+    </div>
+
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <i class="icon fas fa-ban"></i> <span th:text="${errorMessage}"></span>
+    </div>
+
+    <!-- Main Content -->
+    <div class="row">
+        <!-- Booking Information -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-info-circle"></i> Booking Information
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th width="40%">Booking Code:</th>
+                            <td><strong th:text="${booking.bookingCode}"></strong></td>
+                        </tr>
+                        <tr>
+                            <th>Booking Date:</th>
+                            <td th:text="${#temporals.format(booking.bookingDate, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                        </tr>
+                        <tr>
+                            <th>Status:</th>
+                            <td>
+                                <span class="badge badge-lg" 
+                                      th:classappend="${booking.status.name() == 'CONFIRMED' ? 'badge-success' : 
+                                                       booking.status.name() == 'PENDING' ? 'badge-warning' : 
+                                                       'badge-danger'}"
+                                      th:text="${booking.status}"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Payment Status:</th>
+                            <td>
+                                <span class="badge badge-lg" 
+                                      th:classappend="${booking.paymentStatus.name() == 'PAID' ? 'badge-success' : 
+                                                       booking.paymentStatus.name() == 'PENDING' ? 'badge-warning' : 
+                                                       booking.paymentStatus.name() == 'REFUNDED' ? 'badge-info' :
+                                                       'badge-danger'}"
+                                      th:text="${booking.paymentStatus}"></span>
+                            </td>
+                        </tr>
+                        <tr th:if="${booking.rating != null}">
+                            <th>Rating:</th>
+                            <td>
+                                <span th:text="${booking.rating} + '/5'"></span>
+                                <span th:each="i : ${#numbers.sequence(1, booking.rating)}">
+                                    <i class="fas fa-star text-warning"></i>
+                                </span>
+                            </td>
+                        </tr>
+                        <tr th:if="${booking.cancelReason != null}">
+                            <th>Cancel Reason:</th>
+                            <td>
+                                <div class="alert alert-warning mb-0" th:text="${booking.cancelReason}"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Created At:</th>
+                            <td th:text="${#temporals.format(booking.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                        </tr>
+                        <tr>
+                            <th>Last Updated:</th>
+                            <td th:text="${#temporals.format(booking.updatedAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Information -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-user"></i> User Information
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th width="40%">Name:</th>
+                            <td th:text="${booking.userName}"></td>
+                        </tr>
+                        <tr>
+                            <th>Email:</th>
+                            <td>
+                                <a th:href="'mailto:' + ${booking.userEmail}" th:text="${booking.userEmail}"></a>
+                            </td>
+                        </tr>
+                        <tr th:if="${booking.userPhone != null}">
+                            <th>Phone:</th>
+                            <td th:text="${booking.userPhone}"></td>
+                        </tr>
+                        <tr>
+                            <th>User ID:</th>
+                            <td>
+                                <a th:href="@{/admin/users/{id}(id=${booking.userId})}" th:text="${booking.userId}"></a>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tour Information -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-suitcase"></i> Tour Information
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th width="20%">Tour Title:</th>
+                            <td>
+                                <a th:href="@{/admin/tours/{id}(id=${booking.tourId})}" th:text="${booking.tourTitle}"></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Description:</th>
+                            <td th:utext="${booking.tourDescription}"></td>
+                        </tr>
+                        <tr>
+                            <th>Duration:</th>
+                            <td>
+                                <span th:text="${booking.tourDuration}"></span> days
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Price:</th>
+                            <td>
+                                <strong class="text-success" 
+                                        th:text="${#numbers.formatDecimal(booking.tourPrice, 0, 'COMMA', 0, 'POINT')} + ' VND'"></strong>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body text-center">
+                    <a th:href="@{/admin/bookings}" class="btn btn-default">
+                        <i class="fas fa-arrow-left"></i> Back to List
+                    </a>
+                    <a th:href="@{/admin/bookings/{id}/update-status(id=${booking.id})}" 
+                       class="btn btn-warning">
+                        <i class="fas fa-edit"></i> Update Status
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
