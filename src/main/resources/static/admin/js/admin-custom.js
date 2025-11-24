@@ -299,4 +299,65 @@
       })
       .trigger("input");
   });
+
+  /**
+   * ========================================
+   * BOOKING MANAGEMENT SPECIFIC SCRIPTS
+   * ========================================
+   */
+
+  /**
+   * Initialize Booking Status Update Form
+   * Handles dynamic validation for cancel reason field
+   */
+  function initBookingStatusForm() {
+    var $statusSelect = $("#status");
+    var $cancelReasonGroup = $("#cancelReasonGroup");
+    var $cancelRequired = $("#cancelRequired");
+    var $cancelReason = $("#cancelReason");
+    var $form = $statusSelect.closest("form");
+
+    if ($statusSelect.length === 0) {
+      return; // Not on booking status page
+    }
+
+    // Toggle cancel reason field based on status selection
+    $statusSelect.on("change", function () {
+      var selectedStatus = $(this).val();
+      if (selectedStatus === "CANCELLED") {
+        $cancelReasonGroup.show();
+        $cancelRequired.show();
+        $cancelReason.attr("required", true);
+      } else {
+        $cancelReasonGroup.show();
+        $cancelRequired.hide();
+        $cancelReason.attr("required", false);
+      }
+    });
+
+    // Trigger on page load to handle pre-selected value
+    $statusSelect.trigger("change");
+
+    // Confirmation before submit
+    $form.on("submit", function (e) {
+      var status = $statusSelect.val();
+      var paymentStatus = $("#paymentStatus").val();
+
+      if (status === "CANCELLED") {
+        var cancelReason = $cancelReason.val().trim();
+        if (cancelReason === "") {
+          e.preventDefault();
+          alert(
+            "Please enter a cancel reason when changing status to CANCELLED."
+          );
+          return false;
+        }
+      }
+
+      return confirm("Are you sure you want to update this booking status?");
+    });
+  }
+
+  // Initialize booking status form on page load
+  initBookingStatusForm();
 })(jQuery);

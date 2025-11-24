@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{admin/layout/main}">
+<head>
+    <title>Update Booking Status</title>
+</head>
+<body>
+
+<div layout:fragment="page-title">
+    <i class="fas fa-edit"></i> Update Booking Status
+</div>
+
+<ol class="breadcrumb float-sm-right" layout:fragment="breadcrumb">
+    <li class="breadcrumb-item"><a th:href="@{/admin/dashboard}">Home</a></li>
+    <li class="breadcrumb-item"><a th:href="@{/admin/bookings}">Bookings</a></li>
+    <li class="breadcrumb-item"><a th:href="@{/admin/bookings/{id}(id=${booking.id})}">Details</a></li>
+    <li class="breadcrumb-item active">Update Status</li>
+</ol>
+
+<div layout:fragment="content">
+
+    <!-- Error Messages -->
+    <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <h5><i class="icon fas fa-ban"></i> Validation Errors!</h5>
+        <ul>
+            <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-info-circle"></i> Current Booking Information
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th width="30%">Booking Code:</th>
+                            <td><strong th:text="${booking.bookingCode}"></strong></td>
+                        </tr>
+                        <tr>
+                            <th>User:</th>
+                            <td th:text="${booking.userName} + ' (' + ${booking.userEmail} + ')'"></td>
+                        </tr>
+                        <tr>
+                            <th>Tour:</th>
+                            <td th:text="${booking.tourTitle}"></td>
+                        </tr>
+                        <tr>
+                            <th>Current Status:</th>
+                            <td>
+                                <span class="badge" 
+                                      th:classappend="${booking.status.name() == 'CONFIRMED' ? 'badge-success' : 
+                                                       booking.status.name() == 'PENDING' ? 'badge-warning' : 
+                                                       'badge-danger'}"
+                                      th:text="${booking.status}"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Current Payment Status:</th>
+                            <td>
+                                <span class="badge" 
+                                      th:classappend="${booking.paymentStatus.name() == 'PAID' ? 'badge-success' : 
+                                                       booking.paymentStatus.name() == 'PENDING' ? 'badge-warning' : 
+                                                       booking.paymentStatus.name() == 'REFUNDED' ? 'badge-info' :
+                                                       'badge-danger'}"
+                                      th:text="${booking.paymentStatus}"></span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Update Status Form -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-edit"></i> Update Status
+                    </h3>
+                </div>
+                <form th:action="@{/admin/bookings/{id}/update-status(id=${booking.id})}" 
+                      th:object="${statusForm}" 
+                      method="post">
+                    <div class="card-body">
+                        <!-- Booking Status -->
+                        <div class="form-group">
+                            <label for="status">Booking Status <span class="text-danger">*</span></label>
+                            <select id="status" th:field="*{status}" class="form-control" 
+                                    th:classappend="${#fields.hasErrors('status')} ? 'is-invalid'">
+                                <option value="">-- Select Status --</option>
+                                <option th:each="bookingStatus : ${bookingStatuses}" 
+                                        th:value="${bookingStatus}" 
+                                        th:text="${bookingStatus}"></option>
+                            </select>
+                            <span class="invalid-feedback" th:if="${#fields.hasErrors('status')}" 
+                                  th:errors="*{status}"></span>
+                            <small class="form-text text-muted">
+                                Note: Cannot change status from CANCELLED to other status
+                            </small>
+                        </div>
+
+                        <!-- Payment Status -->
+                        <div class="form-group">
+                            <label for="paymentStatus">Payment Status <span class="text-danger">*</span></label>
+                            <select id="paymentStatus" th:field="*{paymentStatus}" class="form-control" 
+                                    th:classappend="${#fields.hasErrors('paymentStatus')} ? 'is-invalid'">
+                                <option value="">-- Select Payment Status --</option>
+                                <option th:each="payStatus : ${paymentStatuses}" 
+                                        th:value="${payStatus}" 
+                                        th:text="${payStatus}"></option>
+                            </select>
+                            <span class="invalid-feedback" th:if="${#fields.hasErrors('paymentStatus')}" 
+                                  th:errors="*{paymentStatus}"></span>
+                            <small class="form-text text-muted">
+                                Recommended: CONFIRMED bookings should have PAID payment status
+                            </small>
+                        </div>
+
+                        <!-- Cancel Reason (conditional) -->
+                        <div class="form-group" id="cancelReasonGroup">
+                            <label for="cancelReason">Cancel Reason <span class="text-danger" id="cancelRequired" style="display:none;">*</span></label>
+                            <textarea id="cancelReason" th:field="*{cancelReason}" 
+                                      class="form-control" rows="4"
+                                      th:classappend="${#fields.hasErrors('cancelReason')} ? 'is-invalid'"
+                                      placeholder="Enter reason for cancellation..."></textarea>
+                            <span class="invalid-feedback" th:if="${#fields.hasErrors('cancelReason')}" 
+                                  th:errors="*{cancelReason}"></span>
+                            <small class="form-text text-muted">
+                                Required when changing status to CANCELLED
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Update Status
+                        </button>
+                        <a th:href="@{/admin/bookings/{id}(id=${booking.id})}" class="btn btn-default">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

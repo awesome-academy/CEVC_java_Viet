@@ -29,6 +29,11 @@ public final class ViewConstants {
     public static final String ADMIN_TOURS_DETAIL = "admin/tours/detail";
     public static final String ADMIN_TOURS_FORM = "admin/tours/form";
 
+    // Admin - Booking Management
+    public static final String ADMIN_BOOKINGS_LIST = "admin/bookings/list";
+    public static final String ADMIN_BOOKINGS_DETAIL = "admin/bookings/detail";
+    public static final String ADMIN_BOOKINGS_UPDATE_STATUS = "admin/bookings/update-status";
+
     // Admin - Dashboard
     public static final String ADMIN_DASHBOARD = "admin/dashboard";
 
@@ -48,5 +53,6 @@ public final class ViewConstants {
     public static final String REDIRECT_ADMIN_ADMINS = "redirect:/admin/admins";
     public static final String REDIRECT_ADMIN_CATEGORIES = "redirect:/admin/categories";
     public static final String REDIRECT_ADMIN_TOURS = "redirect:/admin/tours";
+    public static final String REDIRECT_ADMIN_BOOKINGS = "redirect:/admin/bookings";
     public static final String REDIRECT_ADMIN_LOGIN = "redirect:/admin/login";
 }
