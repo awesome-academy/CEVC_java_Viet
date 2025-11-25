@@ -197,11 +197,11 @@
                         <td th:text="${category.name}">Category Name</td>
                         <td>
                             <span class="badge" 
-                                  th:classappend="${category.type == T(com.sunbooking.entity.CategoryType).TOUR ? 'badge-primary' : 
-                                                   category.type == T(com.sunbooking.entity.CategoryType).NEWS ? 'badge-info' : 
-                                                   category.type == T(com.sunbooking.entity.CategoryType).FOOD ? 'badge-warning' : 
-                                                   category.type == T(com.sunbooking.entity.CategoryType).PLACE ? 'badge-success' : 'badge-secondary'}"
-                                  th:text="${category.type?.name() ?: ''}">Type</span>
+                                  th:classappend="${category.type?.toString() == 'TOUR' ? 'badge-primary' : 
+                                                   category.type?.toString() == 'NEWS' ? 'badge-info' : 
+                                                   category.type?.toString() == 'FOOD' ? 'badge-warning' : 
+                                                   category.type?.toString() == 'PLACE' ? 'badge-success' : 'badge-secondary'}"
+                                  th:text="${category.type}">Type</span>
                         </td>
                         <td th:text="${#temporals.format(category.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</td>
                         <td>

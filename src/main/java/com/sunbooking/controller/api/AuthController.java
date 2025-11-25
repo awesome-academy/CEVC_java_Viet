@@ -133,7 +133,7 @@ public class AuthController {
             authResponse.setToken(jwt);
             authResponse.setType("Bearer");
             authResponse.setId(userDetails.getUser().getId());
-            authResponse.setEmail(userDetails.getUsername());
+            authResponse.setEmail(userDetails.getUser().getEmail());
             authResponse.setName(userDetails.getUser().getName());
             authResponse.setRole(userDetails.getUser().getRole().toString());
 
