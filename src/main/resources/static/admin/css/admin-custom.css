@@ -342,3 +342,29 @@
 @media (prefers-color-scheme: dark) {
     /* Dark mode styles will go here */
 }
+
+/* ========================================
+   Review Management - Comment Styles
+   ======================================== */
+.comment-thread {
+    margin-left: 20px;
+    border-left: 2px solid #dee2e6;
+    padding-left: 15px;
+}
+
+.comment-item {
+    background: #f8f9fa;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+.comment-item.deleted {
+    opacity: 0.6;
+    background: #fff3cd;
+}
+
+.reply-item {
+    margin-left: 30px;
+    margin-top: 10px;
+}
