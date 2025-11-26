@@ -19,6 +19,13 @@
     initDataTables();
     handleActiveMenuState();
 
+    // Debug: Check if Bootstrap is loaded
+    if (typeof $.fn.dropdown === "undefined") {
+      console.error("Bootstrap dropdown plugin is not loaded!");
+    } else {
+      console.log("Bootstrap dropdown plugin loaded successfully");
+    }
+
     console.log("Admin custom scripts loaded successfully");
   });
 

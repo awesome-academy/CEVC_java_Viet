@@ -24,19 +24,6 @@
 
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
-        <!-- Notifications Dropdown Menu -->
-        <li class="nav-item dropdown">
-            <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false">
-                <i class="far fa-bell"></i>
-                <span class="badge badge-warning navbar-badge">0</span>
-            </a>
-            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                <span class="dropdown-item dropdown-header">No New Notifications</span>
-                <div class="dropdown-divider"></div>
-                <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
-            </div>
-        </li>
-
         <!-- User Account Menu -->
         <li class="nav-item dropdown user-menu">
             <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" aria-expanded="false">
@@ -51,7 +38,12 @@
                     </div>
                     <p class="mb-0">
                         <strong sec:authentication="name">User</strong><br>
-                        <small class="text-muted" sec:authentication="principal.authorities">ROLE_ADMIN</small>
+                        <small class="text-muted">
+                            <span th:each="auth, iterStat : ${#authentication.authorities}">
+                                <span th:text="${auth.authority}">ADMIN</span>
+                                <span th:if="${!iterStat.last}">, </span>
+                            </span>
+                        </small>
                     </p>
                 </div>
                 <div class="dropdown-divider"></div>
@@ -72,13 +64,6 @@
                     </button>
                 </form>
             </div>
-        </li>
-
-        <!-- Fullscreen Toggle -->
-        <li class="nav-item">
-            <a class="nav-link" data-widget="fullscreen" href="#" role="button">
-                <i class="fas fa-expand-arrows-alt"></i>
-            </a>
         </li>
     </ul>
 </nav>
