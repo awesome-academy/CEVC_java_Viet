@@ -39,7 +39,7 @@
                 </span>
                 <div class="info-box-content">
                     <span class="info-box-text">Total Users</span>
-                    <span class="info-box-number">0</span>
+                    <span class="info-box-number" th:text="${totalUsers}">0</span>
                 </div>
             </div>
         </div>
@@ -50,8 +50,8 @@
                     <i class="fas fa-map-marked-alt"></i>
                 </span>
                 <div class="info-box-content">
-                    <span class="info-box-text">Total Tours</span>
-                    <span class="info-box-number">0</span>
+                    <span class="info-box-text">Active Tours</span>
+                    <span class="info-box-number" th:text="${activeTours}">0</span>
                 </div>
             </div>
         </div>
@@ -63,7 +63,7 @@
                 </span>
                 <div class="info-box-content">
                     <span class="info-box-text">Total Bookings</span>
-                    <span class="info-box-number">0</span>
+                    <span class="info-box-number" th:text="${totalBookings}">0</span>
                 </div>
             </div>
         </div>
@@ -75,94 +75,206 @@
                 </span>
                 <div class="info-box-content">
                     <span class="info-box-text">Total Revenue</span>
-                    <span class="info-box-number">$0</span>
+                    <span class="info-box-number" th:text="${'$' + #numbers.formatDecimal(totalRevenue, 1, 2)}">$0</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Implementation Status Cards -->
+    <!-- System Status Cards -->
     <div class="row">
+        <div class="col-lg-4 col-6">
+            <div class="small-box bg-info">
+                <div class="inner">
+                    <h3 th:text="${pendingBookings}">0</h3>
+                    <p>Pending Bookings</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <a href="/admin/bookings?status=PENDING" class="small-box-footer">
+                    More info <i class="fas fa-arrow-circle-right"></i>
+                </a>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 col-6">
+            <div class="small-box bg-success">
+                <div class="inner">
+                    <h3 th:text="${totalCategories}">0</h3>
+                    <p>Total Categories</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-list"></i>
+                </div>
+                <a href="/admin/categories" class="small-box-footer">
+                    More info <i class="fas fa-arrow-circle-right"></i>
+                </a>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 col-6">
+            <div class="small-box bg-warning">
+                <div class="inner">
+                    <h3 th:text="${'$' + #numbers.formatDecimal(pendingPayments, 1, 2)}">$0</h3>
+                    <p>Pending Payments</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <a href="/admin/bookings?paymentStatus=PENDING" class="small-box-footer">
+                    More info <i class="fas fa-arrow-circle-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-chart-line mr-1"></i>
+                        Monthly Revenue (Last 12 Months)
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="monthlyRevenueChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card card-danger">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-chart-pie mr-1"></i>
+                        Revenue Breakdown
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="revenueBreakdownChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activities -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card card-info">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-calendar-check mr-1"></i>
+                        Latest Bookings
+                    </h3>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>User</th>
+                                <th>Tour</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${#lists.isEmpty(recentBookings)}">
+                                <td colspan="4" class="text-center text-muted">No bookings yet</td>
+                            </tr>
+                            <tr th:each="booking : ${recentBookings}">
+                                <td>
+                                    <a th:href="@{/admin/bookings/{id}(id=${booking.id})}" 
+                                       th:text="${booking.bookingCode}">BK001</a>
+                                </td>
+                                <td th:text="${booking.userName}">User Name</td>
+                                <td th:text="${#strings.abbreviate(booking.tourTitle, 30)}">Tour Title</td>
+                                <td>
+                                    <span class="badge"
+                                          th:classappend="${booking.status?.toString() == 'CONFIRMED' ? 'badge-success' : 
+                                                           booking.status?.toString() == 'PENDING' ? 'badge-warning' : 
+                                                           booking.status?.toString() == 'CANCELLED' ? 'badge-danger' : 
+                                                           'badge-secondary'}"
+                                          th:text="${booking.status}">Status</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer text-center">
+                    <a th:href="@{/admin/bookings}" class="btn btn-sm btn-info">View All Bookings</a>
+                </div>
+            </div>
+        </div>
+
         <div class="col-md-6">
             <div class="card card-success">
                 <div class="card-header">
                     <h3 class="card-title">
-                        <i class="fas fa-check-circle"></i> Authentication Status
+                        <i class="fas fa-star mr-1"></i>
+                        Latest Reviews
                     </h3>
                 </div>
-                <div class="card-body">
-                    <ul class="list-unstyled">
-                        <li><i class="fas fa-check text-success mr-2"></i>Session-based authentication active</li>
-                        <li><i class="fas fa-check text-success mr-2"></i>CSRF protection enabled</li>
-                        <li><i class="fas fa-check text-success mr-2"></i>Remember-me functionality available</li>
-                        <li><i class="fas fa-check text-success mr-2"></i>Rate limiting protection active</li>
-                    </ul>
+                <div class="card-body p-0">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${#lists.isEmpty(recentReviews)}">
+                                <td colspan="4" class="text-center text-muted">No reviews yet</td>
+                            </tr>
+                            <tr th:each="review : ${recentReviews}">
+                                <td th:text="${review.userName}">User Name</td>
+                                <td>
+                                    <a th:href="@{/admin/reviews/{id}(id=${review.id})}"
+                                       th:text="${#strings.abbreviate(review.title, 30)}">Review Title</a>
+                                </td>
+                                <td>
+                                    <span class="badge badge-primary" th:text="${review.categoryType}">Type</span>
+                                </td>
+                                <td>
+                                    <span class="badge"
+                                          th:classappend="${review.isActive ? 'badge-success' : 'badge-secondary'}"
+                                          th:text="${review.isActive ? 'Active' : 'Hidden'}">Status</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-            </div>
-        </div>
-        
-        <div class="col-md-6">
-            <div class="card card-primary">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-info-circle"></i> Session Information
-                    </h3>
-                </div>
-                <div class="card-body">
-                    <ul class="list-unstyled">
-                        <li><i class="fas fa-user mr-2"></i>Email: <strong th:text="${username}">N/A</strong></li>
-                        <li><i class="fas fa-shield-alt mr-2"></i>Role: <strong>ADMIN</strong></li>
-                        <li><i class="fas fa-clock mr-2"></i>Session timeout: 30 minutes</li>
-                        <li><i class="fas fa-desktop mr-2"></i>Max concurrent sessions: 1</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Implementation Details -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card card-warning">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-lightbulb"></i> Task 3.2 & 4.1 Implementation Complete
-                    </h3>
-                </div>
-                <div class="card-body">
-                    <h5>Task 3.2 - Admin Session Authentication ✅</h5>
-                    <ul>
-                        <li><strong>Custom UserDetailsService:</strong> Loads admin users from database</li>
-                        <li><strong>Session-based Authentication:</strong> Secure session management with configurable timeout</li>
-                        <li><strong>Custom Login Page:</strong> Beautiful, responsive login form with validation</li>
-                        <li><strong>Remember-me Functionality:</strong> Persistent token store in database (14 days validity)</li>
-                        <li><strong>Rate Limiting:</strong> Prevents brute force attacks (5 attempts, 15 min lockout)</li>
-                        <li><strong>CSRF Protection:</strong> Enabled for all admin endpoints</li>
-                        <li><strong>Custom Success/Failure Handlers:</strong> Handles authentication events</li>
-                        <li><strong>Secure Logout:</strong> Invalidates session and clears cookies</li>
-                    </ul>
-                    
-                    <h5 class="mt-3">Task 4.1 - Admin Layout & UI Enhancement ✅</h5>
-                    <ul>
-                        <li><strong>Main Layout Template:</strong> Reusable AdminLTE layout with sidebar</li>
-                        <li><strong>Header Fragment:</strong> Top navigation with user dropdown and logout</li>
-                        <li><strong>Sidebar Fragment:</strong> Complete navigation menu for all admin modules</li>
-                        <li><strong>Footer Fragment:</strong> Copyright and version information</li>
-                        <li><strong>Custom CSS & JS:</strong> Enhanced styling and JavaScript utilities</li>
-                        <li><strong>Responsive Design:</strong> Mobile-friendly layout</li>
-                    </ul>
-                    
-                    <div class="alert alert-info mt-3">
-                        <i class="fas fa-info-circle mr-2"></i>
-                        <strong>Next Steps:</strong> Task 4.2 will implement the full dashboard with real statistics, 
-                        charts, and recent activities from the database.
-                    </div>
+                <div class="card-footer text-center">
+                    <a th:href="@{/admin/reviews}" class="btn btn-sm btn-success">View All Reviews</a>
                 </div>
             </div>
         </div>
     </div>
 
 </div>
+
+<!-- Custom scripts for charts -->
+<th:block layout:fragment="scripts">
+    <script th:src="@{/admin/plugins/chart.js/chart.min.js}"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        $(function() {
+            var monthlyData = /*[[${monthlyRevenue}]]*/ {};
+            var breakdownData = /*[[${revenueBreakdown}]]*/ {};
+            
+            // Initialize charts using the function from admin-custom.js
+            if (typeof window.initDashboardCharts === 'function') {
+                window.initDashboardCharts(monthlyData, breakdownData);
+            }
+        });
+        /*]]>*/
+    </script>
+</th:block>
 
 </body>
 </html>

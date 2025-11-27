@@ -367,4 +367,109 @@
 
   // Initialize booking status form on page load
   initBookingStatusForm();
+
+  /**
+   * ========================================
+   * DASHBOARD CHARTS INITIALIZATION
+   * ========================================
+   */
+
+  /**
+   * Initialize dashboard charts
+   * This function is called from dashboard.html with server-side data
+   */
+  window.initDashboardCharts = function (monthlyRevenue, revenueBreakdown) {
+    if (typeof Chart === "undefined") {
+      console.error("Chart.js is not loaded!");
+      return;
+    }
+
+    // Monthly Revenue Line Chart
+    var monthlyLabels = Object.keys(monthlyRevenue);
+    var monthlyValues = Object.values(monthlyRevenue);
+
+    var ctxLine = document.getElementById("monthlyRevenueChart");
+    if (ctxLine) {
+      new Chart(ctxLine.getContext("2d"), {
+        type: "line",
+        data: {
+          labels: monthlyLabels,
+          datasets: [
+            {
+              label: "Revenue ($)",
+              data: monthlyValues,
+              borderColor: "rgb(60, 141, 188)",
+              backgroundColor: "rgba(60, 141, 188, 0.1)",
+              tension: 0.4,
+              fill: true,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+            },
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function (value) {
+                  return "$" + value.toFixed(2);
+                },
+              },
+            },
+          },
+        },
+      });
+    }
+
+    // Revenue Breakdown Pie Chart
+    var breakdownLabels = Object.keys(revenueBreakdown);
+    var breakdownValues = Object.values(revenueBreakdown);
+
+    var ctxPie = document.getElementById("revenueBreakdownChart");
+    if (ctxPie) {
+      new Chart(ctxPie.getContext("2d"), {
+        type: "pie",
+        data: {
+          labels: breakdownLabels,
+          datasets: [
+            {
+              data: breakdownValues,
+              backgroundColor: [
+                "rgb(0, 166, 90)", // PAID - green
+                "rgb(243, 156, 18)", // PENDING - yellow
+                "rgb(221, 75, 57)", // FAILED - red
+                "rgb(153, 153, 153)", // REFUNDED - gray
+              ],
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: "bottom",
+            },
+            tooltip: {
+              callbacks: {
+                label: function (context) {
+                  var label = context.label || "";
+                  var value = context.parsed || 0;
+                  return label + ": $" + value.toFixed(2);
+                },
+              },
+            },
+          },
+        },
+      });
+    }
+
+    console.log("Dashboard charts initialized successfully");
+  };
 })(jQuery);
