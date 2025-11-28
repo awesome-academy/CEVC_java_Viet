@@ -13,9 +13,14 @@ import lombok.NoArgsConstructor;
 public class AuthResponse {
 
     private String token;
-    private String type;
-    private Long id;
-    private String email;
-    private String name;
-    private String role;
+    private UserDTO user;
+
+    // Constructor for backward compatibility
+    public AuthResponse(String token, String type, Long id, String email, String name, String role) {
+        this.token = token;
+        this.user = new UserDTO();
+        this.user.setId(id);
+        this.user.setEmail(email);
+        this.user.setName(name);
+    }
 }
