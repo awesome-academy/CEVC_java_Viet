@@ -1,6 +1,5 @@
 package com.sunbooking.controller.admin;
 
-import static com.sunbooking.constant.ViewConstants.ADMIN_DASHBOARD;
 import static com.sunbooking.constant.ViewConstants.ADMIN_LOGIN;
 import static com.sunbooking.constant.ViewConstants.REDIRECT_ADMIN_DASHBOARD;
 
@@ -106,21 +105,5 @@ public class LoginController {
         }
 
         return ADMIN_LOGIN;
-    }
-
-    /**
-     * Dashboard page (temporary for testing).
-     * 
-     * Will be replaced by proper dashboard implementation in Task 4.2.
-     * 
-     * @param model the model
-     * @return the dashboard view name
-     */
-    @GetMapping("/dashboard")
-    public String dashboard(Model model) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        model.addAttribute("username", auth.getName());
-        log.debug("Dashboard accessed by user: {}", auth.getName());
-        return ADMIN_DASHBOARD;
     }
 }

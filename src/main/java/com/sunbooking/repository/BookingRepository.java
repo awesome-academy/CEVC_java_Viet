@@ -242,4 +242,39 @@ public interface BookingRepository extends JpaRepository<Booking, Long>, JpaSpec
          */
         @Query("SELECT AVG(b.rating) FROM Booking b WHERE b.tour.id = :tourId AND b.rating IS NOT NULL")
         Double averageRatingByTourId(@Param("tourId") Long tourId);
+
+        /**
+         * Get monthly revenue for the last 12 months.
+         * Returns month in format YYYY-MM and total revenue for that month.
+         *
+         * @param startDate the start date (12 months ago)
+         * @return list of arrays [month, revenue]
+         */
+        @Query("SELECT DATE_FORMAT(b.createdAt, '%Y-%m') as month, COALESCE(SUM(t.price), 0) as amount " +
+                        "FROM Booking b JOIN b.tour t " +
+                        "WHERE b.paymentStatus = 'PAID' AND b.createdAt >= :startDate " +
+                        "GROUP BY DATE_FORMAT(b.createdAt, '%Y-%m') " +
+                        "ORDER BY month")
+        List<Object[]> getMonthlyRevenue(@Param("startDate") LocalDateTime startDate);
+
+        /**
+         * Get revenue breakdown by payment status.
+         * Returns payment status and total revenue for each status.
+         *
+         * @return list of arrays [paymentStatus, revenue]
+         */
+        @Query("SELECT b.paymentStatus, COALESCE(SUM(t.price), 0) " +
+                        "FROM Booking b JOIN b.tour t " +
+                        "GROUP BY b.paymentStatus")
+        List<Object[]> getRevenueByPaymentStatus();
+
+        /**
+         * Calculate sum of tour prices for bookings with specific payment status.
+         *
+         * @param paymentStatus the payment status
+         * @return total amount or 0 if no bookings found
+         */
+        @Query("SELECT COALESCE(SUM(t.price), 0) FROM Booking b JOIN b.tour t " +
+                        "WHERE b.paymentStatus = :paymentStatus")
+        Double sumByPaymentStatus(@Param("paymentStatus") PaymentStatus paymentStatus);
 }
