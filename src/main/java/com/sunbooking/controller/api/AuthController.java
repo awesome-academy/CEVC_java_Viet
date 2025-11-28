@@ -26,19 +26,28 @@ import com.sunbooking.dto.api.request.LoginRequest;
 import com.sunbooking.dto.api.request.RegisterRequest;
 import com.sunbooking.dto.api.response.ApiResponse;
 import com.sunbooking.dto.api.response.AuthResponse;
+import com.sunbooking.dto.api.response.UserDTO;
 import com.sunbooking.entity.User;
 import com.sunbooking.entity.UserRole;
 import com.sunbooking.repository.UserRepository;
 import com.sunbooking.security.CustomUserDetails;
+import com.sunbooking.security.LoginAttemptService;
 import com.sunbooking.security.jwt.JwtService;
+import com.sunbooking.swagger.AuthSwaggerDoc;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
  * REST controller for authentication endpoints.
  * Handles user registration and login with JWT token generation.
+ * 
+ * API documentation is centralized in AuthSwaggerDoc class for better
+ * maintainability.
  */
 @RestController
 @RequestMapping("/api/auth")
-public class AuthController {
+@Tag(name = "Authentication", description = "User authentication and registration endpoints")
+public class AuthController extends BaseController {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
@@ -57,63 +66,108 @@ public class AuthController {
     @Autowired
     private MessageSource messageSource;
 
+    @Autowired
+    private LoginAttemptService loginAttemptService;
+
     /**
      * Register a new user.
      *
      * @param registerRequest registration details
-     * @param request         HTTP request for locale
-     * @return API response with registration result
+     * @param request         HTTP request for locale and IP tracking
+     * @return API response with user data
      */
+    @AuthSwaggerDoc.RegisterEndpoint
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<String>> register(
+    public ResponseEntity<ApiResponse<UserDTO>> register(
             @Valid @RequestBody RegisterRequest registerRequest,
             HttpServletRequest request) {
 
         logger.info("Registration attempt for email: {}", registerRequest.getEmail());
         Locale locale = request.getLocale();
 
-        // Check if email already exists
-        if (userRepository.existsByEmail(registerRequest.getEmail())) {
-            logger.warn("Registration failed: Email already exists - {}", registerRequest.getEmail());
-            String errorMsg = messageSource.getMessage("api.auth.register.email.exists", null, locale);
+        // Check rate limiting
+        String clientIP = getClientIP(request);
+
+        if (loginAttemptService.isBlocked(clientIP)) {
+            long remainingMinutes = loginAttemptService.getRemainingLockoutMinutes(clientIP);
+            logger.warn("Registration blocked due to rate limiting from IP: {}, remaining: {} minutes",
+                    clientIP, remainingMinutes);
+
+            String errorMsg = messageSource.getMessage("login.error.blocked",
+                    new Object[] { remainingMinutes }, locale);
             return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
+                    .status(HttpStatus.TOO_MANY_REQUESTS)
                     .body(ApiResponse.error(errorMsg));
         }
 
-        // Create new user
-        User user = new User();
-        user.setName(registerRequest.getName());
-        user.setEmail(registerRequest.getEmail());
-        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-        user.setPhone(registerRequest.getPhone());
-        user.setRole(UserRole.USER);
-        user.setIsActive(true);
+        try {
+            // Check if email already exists
+            if (userRepository.findByEmail(registerRequest.getEmail()).isPresent()) {
+                String errorMsg = messageSource.getMessage("api.auth.register.email.exists", null, locale);
+                loginAttemptService.recordFailedAttempt(clientIP);
+                logger.warn("Registration failed - email already exists: {}", registerRequest.getEmail());
+                return ResponseEntity
+                        .status(HttpStatus.CONFLICT)
+                        .body(ApiResponse.error(errorMsg));
+            }
 
-        userRepository.save(user);
+            // Create new user
+            User user = new User();
+            user.setEmail(registerRequest.getEmail());
+            user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+            user.setName(registerRequest.getName());
+            user.setRole(UserRole.USER);
+            user.setIsActive(true);
 
-        logger.info("User registered successfully: {}", user.getEmail());
-        String successMsg = messageSource.getMessage("api.auth.register.success", null, locale);
+            // Save user
+            User savedUser = userRepository.save(user);
+            logger.info("User registered successfully: {}", savedUser.getEmail());
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(ApiResponse.success(successMsg, null));
+            // Create UserDTO
+            UserDTO userDTO = UserDTO.fromEntity(savedUser);
+
+            String successMsg = messageSource.getMessage("api.auth.register.success", null, locale);
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(ApiResponse.success(successMsg, userDTO));
+
+        } catch (Exception e) {
+            logger.error("Registration failed for email: {}", registerRequest.getEmail(), e);
+            loginAttemptService.recordFailedAttempt(clientIP);
+            String errorMsg = messageSource.getMessage("api.error.internal", null, locale);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error(errorMsg));
+        }
     }
 
     /**
      * Authenticate user and generate JWT token.
      *
      * @param loginRequest login credentials
-     * @param request      HTTP request for locale
-     * @return API response with JWT token and user details
+     * @param request      HTTP request for locale and IP tracking
+     * @return JWT token and user data
      */
+    @AuthSwaggerDoc.LoginEndpoint
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<AuthResponse>> login(
+    public ResponseEntity<AuthResponse> login(
             @Valid @RequestBody LoginRequest loginRequest,
             HttpServletRequest request) {
 
         logger.info("Login attempt for email: {}", loginRequest.getEmail());
-        Locale locale = request.getLocale();
+
+        // Check rate limiting
+        String clientIP = getClientIP(request);
+
+        if (loginAttemptService.isBlocked(clientIP)) {
+            long remainingMinutes = loginAttemptService.getRemainingLockoutMinutes(clientIP);
+            logger.warn("Login blocked due to rate limiting from IP: {}, remaining: {} minutes",
+                    clientIP, remainingMinutes);
+
+            return ResponseEntity
+                    .status(HttpStatus.TOO_MANY_REQUESTS)
+                    .body(new AuthResponse(null, null));
+        }
 
         try {
             // Authenticate user
@@ -122,38 +176,60 @@ public class AuthController {
                             loginRequest.getEmail(),
                             loginRequest.getPassword()));
 
+            // Set authentication in security context
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            // Generate JWT token
+            // Get user details
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-            String jwt = jwtService.generateToken(userDetails);
+            User user = userDetails.getUser();
 
-            // Build response
-            AuthResponse authResponse = new AuthResponse();
-            authResponse.setToken(jwt);
-            authResponse.setType("Bearer");
-            authResponse.setId(userDetails.getUser().getId());
-            authResponse.setEmail(userDetails.getUser().getEmail());
-            authResponse.setName(userDetails.getUser().getName());
-            authResponse.setRole(userDetails.getUser().getRole().toString());
+            // Generate JWT token
+            String token = jwtService.generateToken(userDetails);
 
-            logger.info("Login successful for user: {}", loginRequest.getEmail());
-            String successMsg = messageSource.getMessage("api.auth.login.success", null, locale);
+            // Create UserDTO
+            UserDTO userDTO = UserDTO.fromEntity(user);
 
-            return ResponseEntity.ok(ApiResponse.success(successMsg, authResponse));
+            logger.info("User logged in successfully: {}", user.getEmail());
+
+            // Reset failed attempts on successful login
+            loginAttemptService.resetFailedAttempts(clientIP);
+
+            return ResponseEntity.ok(new AuthResponse(token, userDTO));
 
         } catch (BadCredentialsException e) {
-            logger.warn("Login failed: Invalid credentials for email: {}", loginRequest.getEmail());
-            String errorMsg = messageSource.getMessage("api.auth.login.invalid", null, locale);
+            logger.warn("Login failed - invalid credentials for email: {}", loginRequest.getEmail());
+            loginAttemptService.recordFailedAttempt(clientIP);
+
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
-                    .body(ApiResponse.error(errorMsg));
+                    .body(new AuthResponse(null, null));
         } catch (Exception e) {
-            logger.error("Login error for email: {}", loginRequest.getEmail(), e);
-            String errorMsg = messageSource.getMessage("api.auth.login.error", null, locale);
+            logger.error("Login failed for email: {}", loginRequest.getEmail(), e);
+            loginAttemptService.recordFailedAttempt(clientIP);
+
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.error(errorMsg));
+                    .body(new AuthResponse(null, null));
         }
+    }
+
+    /**
+     * Extract client IP address from request.
+     *
+     * @param request HTTP request
+     * @return client IP address
+     */
+    private String getClientIP(HttpServletRequest request) {
+        String xForwardedFor = request.getHeader("X-Forwarded-For");
+        if (xForwardedFor != null && !xForwardedFor.isEmpty() && !"unknown".equalsIgnoreCase(xForwardedFor)) {
+            return xForwardedFor.split(",")[0];
+        }
+
+        String xRealIP = request.getHeader("X-Real-IP");
+        if (xRealIP != null && !xRealIP.isEmpty() && !"unknown".equalsIgnoreCase(xRealIP)) {
+            return xRealIP;
+        }
+
+        return request.getRemoteAddr();
     }
 }
